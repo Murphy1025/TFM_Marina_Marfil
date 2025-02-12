@@ -1,0 +1,168 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <POU Name="POU_Edges" Id="{24290fd8-7b96-413c-add1-e7498c0e5dc0}" SpecialFunc="None">
+    <Declaration><![CDATA[PROGRAM POU_Edges
+VAR
+		
+	// Falling Edges
+	
+	Falling_Edge_Almacen_I_2 			: F_TRIG;
+	Falling_Edge_Almacen_I_D 			: F_TRIG;
+	Falling_Edge_Almacen_I_R			: F_TRIG;
+	Falling_Edge_Almacen_O 				: F_TRIG;
+	Falling_Edge_Azul_Separada 			: F_TRIG;
+	Falling_Edge_Cruce_1_F 				: F_TRIG;
+	Falling_Edge_Cruce_1_I 				: F_TRIG;
+	Falling_Edge_Cruce_1_Salida 		: F_TRIG;
+	Falling_Edge_Cruce_2_F 				: F_TRIG;	
+	Falling_Edge_Cruce_2_I 				: F_TRIG;
+	Falling_Edge_Cruce_2_Salida 		: F_TRIG;	
+	Falling_Edge_Descartadas 			: F_TRIG;
+	Falling_Edge_Diff_6 				: F_TRIG;
+	Falling_Edge_Diff_7 				: F_TRIG;
+	Falling_Edge_Diff_10 				: F_TRIG;
+	Falling_Edge_Diff_11 				: F_TRIG;
+	Falling_Edge_Diff_13 				: F_TRIG;
+	Falling_Edge_Diff_14 				: F_TRIG;
+	Falling_Edge_Entrada_Manipulador_1 	: F_TRIG;
+	Falling_Edge_Entrada_Manipulador_2 	: F_TRIG;
+	Falling_Edge_Entrada_Manipulador_3 	: F_TRIG;
+	Falling_Edge_Entrada_Manipulador_4 	: F_TRIG;
+	Falling_Edge_Entrada_Manipulador_5 	: F_TRIG;
+	Falling_Edge_Entrada_Manipulador_6 	: F_TRIG;	
+	Falling_Edge_Limpiador 				: F_TRIG; 
+	Falling_Edge_Metal_Separada 		: F_TRIG;
+	Falling_Edge_Paletizador_1 			: F_TRIG; 
+	Falling_Edge_Paletizador_2 			: F_TRIG;
+	Falling_Edge_Paletizador_3 			: F_TRIG;
+	Falling_Edge_Sensor_Salida_C1 		: F_TRIG;
+	Falling_Edge_Sensor_Salida_C2 		: F_TRIG;
+	Falling_Edge_Sensor_Secundario_C1 	: F_TRIG;
+	Falling_Edge_Sensor_Secundario_C2 	: F_TRIG;
+	Falling_Edge_Sensor_Zona_Azul 		: F_TRIG;
+	Falling_Edge_Sensor_Zona_Metal 		: F_TRIG;
+	Falling_Edge_Sensor_Zona_Verde 		: F_TRIG;
+	Falling_Edge_Verde_Separada 		: F_TRIG;
+	FallingEdgeZ						: F_TRIG;
+	FallingEdgeX						: F_TRIG;
+	
+	// Rasing Edges
+	
+	Rasing_Edge_Almacen_I_D 			: R_TRIG;
+	Rasing_Edge_Almacen_O 				: R_TRIG;
+	Rasing_Edge_Diff_6 					: R_TRIG;
+	Rasing_Edge_Diff_7 					: R_TRIG;
+	Rasing_Edge_Diff_10 				: R_TRIG;
+	Rasing_Edge_Diff_11 				: R_TRIG;
+	Rasing_Edge_Diff_13 				: R_TRIG;
+	Rasing_Edge_Diff_14 				: R_TRIG;	
+	Rasing_Edge_Emisor 					: R_TRIG;
+	Rasing_Edge_Limpiador 				: R_TRIG;
+	Rasing_Edge_Salida_Manipulador_1 	: R_TRIG;
+	Rasing_Edge_Salida_Manipulador_2 	: R_TRIG;
+	Rasing_Edge_Salida_Manipulador_3 	: R_TRIG;
+	Rasing_Edge_Salida_Manipulador_4 	: R_TRIG;
+	Rasing_Edge_Salida_Manipulador_5 	: R_TRIG;
+	Rasing_Edge_Salida_Manipulador_6 	: R_TRIG;	
+	Rasing_Edge_Sensor_Principal_C1 	: R_TRIG;
+	Rasing_Edge_Sensor_Principal_C2 	: R_TRIG;
+	Rasing_Edge_Sensor_Zona_Azul		: R_TRIG;
+	
+	
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[//Etapa1
+Falling_Edge_Sensor_Zona_Azul(CLK:=GVL.Diffuse_Sensor_2);
+Falling_Edge_Sensor_Zona_Metal(CLK:=GVL.Diffuse_Sensor_4);
+Falling_Edge_Sensor_Zona_Verde(CLK:=GVL.Diffuse_Sensor_3);
+Rasing_Edge_Sensor_Zona_Azul(CLK:=GVL.Diffuse_Sensor_2);
+
+// Linea Principal
+Falling_Edge_Azul_Separada(CLK:=GVL.Diffuse_Sensor_5);
+Falling_Edge_Descartadas (CLK:= GVL.Diffuse_Sensor_8);
+Falling_Edge_Limpiador(CLK:=GVL.Diffuse_Sensor_2);
+Rasing_Edge_Emisor(CLK:=GVL.Diffuse_Sensor_0);
+Rasing_Edge_Limpiador(CLK:=GVL.Diffuse_Sensor_2);
+
+// Linea Azul
+Falling_Edge_Diff_6 (CLK:=GVL.Diffuse_Sensor_6);
+Falling_Edge_Diff_7 (CLK:=GVL.Diffuse_Sensor_7);
+Falling_Edge_Entrada_Manipulador_1 (CLK:=GVL.Diffuse_Sensor_15);
+Falling_Edge_Entrada_Manipulador_2 (CLK:=GVL.Diffuse_Sensor_16);
+Falling_Edge_Paletizador_1 (CLK:=GVL.Palletizer_1_Elevator_Front_Limit); 
+Rasing_Edge_Diff_6 (CLK:=GVL.Diffuse_Sensor_6);
+Rasing_Edge_Diff_7 (CLK:=GVL.Diffuse_Sensor_7);
+Rasing_Edge_Salida_Manipulador_1 (CLK:=GVL.Diffuse_Sensor_17);
+Rasing_Edge_Salida_Manipulador_2 (CLK:=GVL.Diffuse_Sensor_18);
+
+//Linea Verde
+Falling_Edge_Diff_10 (CLK:=GVL.Diffuse_Sensor_10);
+Falling_Edge_Diff_11 (CLK:=GVL.Diffuse_Sensor_11);
+Falling_Edge_Entrada_Manipulador_3 (CLK:=GVL.Diffuse_Sensor_23);
+Falling_Edge_Entrada_Manipulador_4 (CLK:=GVL.Diffuse_Sensor_24);
+Falling_Edge_Paletizador_2 (CLK:=GVL.Palletizer_2_Elevator_Front_Limit); 
+Rasing_Edge_Diff_10 (CLK:=GVL.Diffuse_Sensor_10);
+Rasing_Edge_Diff_11 (CLK:=GVL.Diffuse_Sensor_11);
+Rasing_Edge_Salida_Manipulador_3 (CLK:=GVL.Diffuse_Sensor_25);
+Rasing_Edge_Salida_Manipulador_4 (CLK:=GVL.Diffuse_Sensor_26);
+Falling_Edge_Verde_Separada(CLK:=GVL.Diffuse_Sensor_9);
+
+//Linea Metal
+Falling_Edge_Diff_13 (CLK:=GVL.Diffuse_Sensor_13);
+Falling_Edge_Diff_14 (CLK:=GVL.Diffuse_Sensor_14);
+Falling_Edge_Entrada_Manipulador_5 (CLK:=GVL.Diffuse_Sensor_31);
+Falling_Edge_Entrada_Manipulador_6 (CLK:=GVL.Diffuse_Sensor_32);
+Falling_Edge_Metal_Separada(CLK:=GVL.Diffuse_Sensor_12);
+Falling_Edge_Paletizador_3 (CLK:=GVL.Palletizer_3_Elevator_Front_Limit); 
+Rasing_Edge_Diff_14 (CLK:=GVL.Diffuse_Sensor_14);
+Rasing_Edge_Diff_13 (CLK:=GVL.Diffuse_Sensor_13);
+Rasing_Edge_Salida_Manipulador_5 (CLK:=GVL.Diffuse_Sensor_33);
+Rasing_Edge_Salida_Manipulador_6 (CLK:=GVL.Diffuse_Sensor_34);
+
+// Cruce 1
+Rasing_Edge_Sensor_Principal_C1 (CLK := GVL.Diffuse_Sensor_39);
+Falling_Edge_Sensor_Salida_C1 (CLK := GVL.Turnable_1_Back_Limit);
+Falling_Edge_Sensor_Secundario_C1 (CLK := GVL.Diffuse_Sensor_40);
+
+// Cruce 2
+Rasing_Edge_Sensor_Principal_C2 (CLK := GVL.Diffuse_Sensor_41);
+Falling_Edge_Sensor_Salida_C2 (CLK := GVL.Turnable_2_Back_Limit);
+Falling_Edge_Sensor_Secundario_C2 (CLK := GVL.Diffuse_Sensor_42);
+
+//Linea Almacen
+Falling_Edge_Cruce_1_I (CLK:=GVL.Diffuse_Sensor_39);
+Falling_Edge_Cruce_1_F (CLK:=GVL.Diffuse_Sensor_40);
+Falling_Edge_Cruce_2_I (CLK:=GVL.Diffuse_Sensor_41);
+Falling_Edge_Cruce_2_f (CLK:=GVL.Diffuse_Sensor_42);
+Falling_Edge_Cruce_1_Salida (CLK := GVL.Turnable_1_Back_Limit); 
+Falling_Edge_Cruce_2_Salida (CLK := GVL.Turnable_2_Back_Limit);
+Falling_Edge_Almacen_I_D (CLK := GVL.Diffuse_Sensor_43);
+Falling_Edge_Almacen_O (CLK := GVL.Diffuse_Sensor_44);
+Rasing_Edge_Almacen_O (CLK := GVL.Retroreflective_Sensor_2);
+
+// Almacen
+FallingEdgeX(CLK:=GVL.Stacker_Crane_1_Moving_X, Q=> );
+FallingEdgeZ(CLK:=GVL.Stacker_Crane_1_Moving_Z, Q=> );
+Falling_Edge_Almacen_I_R(CLK:=GVL.Retroreflective_Sensor_1, Q=> );
+Rasing_Edge_Almacen_I_D (CLK := GVL.Diffuse_Sensor_43);
+Falling_Edge_Almacen_I_2 (CLK := POU_Almacen.Hay_Palet);
+
+
+]]></ST>
+    </Implementation>
+    <LineIds Name="POU_Edges">
+      <LineId Id="257" Count="0" />
+      <LineId Id="260" Count="2" />
+      <LineId Id="198" Count="41" />
+      <LineId Id="28" Count="0" />
+      <LineId Id="18" Count="9" />
+      <LineId Id="87" Count="0" />
+      <LineId Id="243" Count="8" />
+      <LineId Id="128" Count="1" />
+      <LineId Id="252" Count="4" />
+      <LineId Id="86" Count="0" />
+      <LineId Id="146" Count="2" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

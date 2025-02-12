@@ -1,0 +1,327 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <POU Name="POU_Almacen" Id="{7047e63d-82e7-4f4c-b36f-8d5c47ae36f9}" SpecialFunc="None">
+    <Declaration><![CDATA[PROGRAM POU_Almacen
+VAR
+	
+	bGetTime    				: BOOL; // Trigger para obtener el tiempo
+	Color						: DINT 	:= 0; // Color del producto del palet a almacenar
+	Color_Retirada				: INT  	:= 0; // Color del producto del palet a retirar del Almacen
+	fbLocalTime 				: FB_LocalSystemTime := ( bEnable := TRUE, sNetID := '10.24.136.19.1.1',dwcycle := 100);
+	Hay_Palet 					: BOOL	:= FALSE; // variable para indicar si hay un palet en posición para ser recogido pro la grúa
+	MovingZ						: BOOL 	:= FALSE; // Variable de control que indica si la grúa ha dejado de moverse en el eje Z
+	MovingX						: BOOL 	:= FALSE; // Variable de control que indica si la grúa ha dejado de moverse en el eje X	
+	Pallet_Almacen_I 			: CTUD; // Contador de palet en la última cinta antes del almacén
+	posicion					: INT; // posición del palet a almacenar/retirar
+	posLibre					: INT; // primera posición libre del almacen
+	Posicion_Extraer_Antigua	: INT  	:= 0; // Posicion del palet a extraer en el almacen
+	FB_Visibilidad 				: FB_Visibilidad;
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[ // ---------------------------------------------------------------- 1. FALLING Y RASING EDGES ----------------------------------------------------------------
+
+IF POU_Edges.FallingEdgeZ.Q THEN
+	MovingZ := TRUE;
+END_IF
+
+IF POU_Edges.FallingEdgeX.Q THEN
+	MovingX := TRUE;
+END_IF
+
+
+IF POU_Edges.Falling_Edge_Almacen_I_R.Q THEN Hay_Palet := TRUE; END_IF // Cuando llega el palet al final del loading, se indica que está lista para ser almacenada
+
+ // ---------------------------------------------------------------- 2. CONTROL CINTAS ----------------------------------------------------------------
+ 
+Pallet_Almacen_I (CU:= POU_Edges.Rasing_Edge_Almacen_I_D.Q,CD := POU_Edges.Falling_Edge_Almacen_I_2.Q);
+
+GVL.Loading_Conveyor_1 := (NOT Hay_Palet AND WORD_TO_INT(Pallet_Almacen_I.CV) =1); // Si el palet no está posicionado para ser guardado(ha llegado al final) pero se está posicionando
+GVL.Roller_Conveyor_2m_8 := NOT (GVL.Diffuse_Sensor_43 AND  WORD_TO_INT(Pallet_Almacen_I.CV) >1) AND GVL.Contador_Linea_Cruce_2>0;	// Si hay un palet en el Loading y aparece otro, se para la cinta
+
+ // ---------------------------------------------------------------- 3. MODO ALMACENAMIENTO ----------------------------------------------------------------
+
+IF GVL.Control_Almacen THEN	
+	CASE GVL.Estado_Almacen_I OF
+		
+		0: //Estado 0, leemos la información del palet
+			IF Hay_Palet THEN
+				GVL.RFID_Reader_4_Ejecute_Comm := TRUE;
+				GVL.Estado_Almacen_I := 1;
+			END_IF
+		
+		1: 	//Estado 1, le damos un estado de espera para comprobar si ha escrito bien
+			IF GVL.RFID_Reader_4_Status=0 AND GVL.Pallets_Almacenados = GVL.RFID_Reader_4_Command_ID THEN			
+				RFID_Reader_4_Ejecute_Comm := FALSE;			
+				Color := GVL.RFID_Reader_4_Read_Data;
+				
+				IF	GVL.RFID_Reader_4_Status=0 THEN
+					GVL.Error_RFID_Almacen := FALSE;
+				ELSE						
+					GVL.Error_RFID_Almacen := TRUE;	
+				END_IF
+				
+				GVL.Estado_Almacen_I := 2;
+				
+			END_IF
+			
+		2: // Estado 2, extendemos para coger palet
+			posLibre := FUN_get_Posicion_Libre_Array();
+			IF  NOT GVL.Retroreflective_Sensor_1 AND posLibre <> 0 AND NOT GVL.Retirada_Start AND Estado_Almacen_O =1THEN
+				GVL.Stacker_Crane_1_Right := TRUE;
+				GVL.Estado_Almacen_I := 3;
+			END_IF
+		
+		3: // Estado 3, levantamos para coger la palet 
+			IF  GVL.Stacker_Crane_1_Right_Limit  THEN
+				GVL.Stacker_Crane_1_Lift := TRUE;
+				GVL.Estado_Almacen_I := 4;
+			END_IF
+			
+		4: // Estado 4, una vez levantada, volvemos
+			IF  POU_Edges.FallingEdgeZ.Q THEN
+				GVL.Stacker_Crane_1_Right := FALSE;				
+				Hay_Palet := FALSE;
+			END_IF
+			
+		5: // Estado 5, llevamos a guardarla
+			IF GVL.Stacker_Crane_1_Middle_Limit THEN	
+				
+				IF GVL.Error_RFID_Almacen THEN	
+					GVL.Stacker_Crane_1_Left := TRUE;
+					GVL.Estado_Almacen_I := 7 ;	
+				ELSE
+					MovingZ  := FALSE;
+					posicion := FUN_get_Posicion_Libre_Array();
+					GVL.Stacker_Crane_1_Target_Position:= posicion; // recorremos el array hasta obtener la primera posición a guardar
+					GVL.Clasificados[posicion-1].Color := Color;	
+					FB_Visibilidad(Color:= Color, Posicion:= Posicion);
+					IF fbLocalTime.bValid THEN   				 
+						GVL.Clasificados[posicion-1].Fecha_Hora := SYSTEMTIME_TO_DT(fbLocalTime.systemTime);
+					END_IF;
+					GVL.Estado_Almacen_I := 6;
+				END_IF
+				
+			END_IF
+			
+		6: // Estado 6, llegados a la posición expandimos para colocar el palet
+			IF MovingX AND MovingZ THEN
+				GVL.Stacker_Crane_1_Left := TRUE;
+				MovingX  := FALSE;
+				MovingZ  := FALSE;
+				GVL.Estado_Almacen_I := 7;
+			END_IF
+			
+		7: //Estado 7, una vez expandida bajamos para dejarla posicionada
+			IF GVL.Stacker_Crane_1_Left_Limit  THEN
+				// Rellenamos el tipo de palet que hay en la posicion	
+				GVL.Stacker_Crane_1_Lift := FALSE;
+				GVL.Estado_Almacen_I := 8;	
+				
+			END_IF
+			
+		8: // Estado 8, una vez bajada recojemos
+			IF MovingZ  THEN
+				// Rellenamos el tipo de palet que hay en la posicion
+				GVL.Stacker_Crane_1_Left := FALSE;
+				MovingZ  := FALSE;
+				GVL.Estado_Almacen_I := 9;
+			END_IF
+		
+		9: // Estado 9, volvemos a reposo
+			IF GVL.Stacker_Crane_1_Middle_Limit THEN
+				
+				IF GVL.Error_RFID_Almacen THEN					
+					GVL.Estado_Almacen_I := 0;
+				ELSE
+					GVL.Stacker_Crane_1_Target_Position := 55 ;
+					GVL.Estado_Almacen_I :=10;
+				END_IF
+				
+			END_IF
+			
+		10: // Estado 10, esperamos hasta que llegue a la posición de reposo
+			IF MovingZ AND MovingX THEN
+				GVL.Roller_Conveyor_2m_1 := TRUE;
+				GVL.Loading_Conveyor_1 :=TRUE;
+				MovingX  := FALSE;
+				MovingZ  := FALSE;
+				GVL.Estado_Almacen_I := 0;
+			END_IF
+			
+	END_CASE
+END_IF
+
+ // ---------------------------------------------------------------- 3. MODO EXTRACCIÓN ----------------------------------------------------------------
+
+// FUNCIONES SELECTOR (1: Azul, 4:Verde, 7:Metal)
+
+IF GVL.Selector1_State_1 THEN 
+	
+	Color_Retirada := 4;
+	GVL.Light_Indicator_Green := TRUE;
+	GVL.Light_Indicator_Blue := FALSE;
+	GVL.Light_Indicator_Red := FALSE;
+
+// Extraer Metal
+ELSIF GVL.Selector1_State_2 THEN 
+	
+	Color_Retirada := 7;
+	GVL.Light_Indicator_Green := FALSE;
+	GVL.Light_Indicator_Blue := FALSE;
+	GVL.Light_Indicator_Red := TRUE;
+	
+// Extraer Azul	
+ELSE 
+	
+	Color_Retirada := 1;
+	GVL.Light_Indicator_Green := FALSE;
+	GVL.Light_Indicator_Blue := TRUE;
+	GVL.Light_Indicator_Red := FALSE;
+	
+END_IF
+
+posicion := FUN_get_Posicion_Ocupada_Array(Color_Retirada);
+GVL.Digital_Display_1 := GVL.ContadorPalets;
+
+
+// MOVIMIENTOS DE LA GRÚA
+
+IF GVL.Control_Almacen THEN	
+	CASE GVL.Estado_Almacen_O OF
+	
+		1: // Estado 1, Si se ha pulsado el boton de Start y hay Palets a retirar del material seleccionado, enviamos la grua a recoger el palet
+			IF GVL.Retirada_Start  AND Estado_Almacen_I =2 AND posicion<>0 THEN	
+				GVL.Stacker_Crane_1_Target_Position:= posicion; // Se recorre el array para obtener la primera posición libre
+				Posicion_Extraer_Antigua := posicion;
+				GVL.Estado_Almacen_O := 2;
+			END_IF
+			
+		2: // Estado 2, llegados a la posición expandimos para recoger el palet
+			IF MovingX AND MovingZ THEN
+				GVL.Stacker_Crane_1_Left := TRUE;
+				MovingX  := FALSE;
+				MovingZ  := FALSE;
+				GVL.Estado_Almacen_O := 3;
+			END_IF
+				
+		3: //Estado 3, una vez expandida subirmos para recoger el palet
+			IF GVL.Stacker_Crane_1_Left_Limit THEN
+				GVL.Stacker_Crane_1_Lift := TRUE;
+				GVL.Estado_Almacen_O := 4;				
+			END_IF
+	
+			
+		4: // Estado 4, una vez subida recojemos y liberamos al posición del array
+			IF MovingZ THEN
+				GVL.Stacker_Crane_1_Left := FALSE;
+				MovingZ  := FALSE;;
+				GVL.Clasificados[Posicion_Extraer_Antigua-1].Color := 0;
+				GVL.Clasificados[Posicion_Extraer_Antigua-1].Fecha_Hora := DT#1999-01-01-00:00:00;				
+				FB_Visibilidad(Color:= 0, Posicion:= Posicion_Extraer_Antigua);
+				GVL.Estado_Almacen_O := 5;	
+			END_IF
+			
+		5: // Estado 5, volvemos a reposo
+			IF GVL.Stacker_Crane_1_Middle_Limit THEN
+				GVL.Stacker_Crane_1_Target_Position := 55 ;
+				GVL.Estado_Almacen_O := 6;
+			END_IF
+			
+		6: // Estado 6, extendemos para colocar palet
+			IF  MovingX AND MovingZ THEN
+				GVL.Loading_Conveyor_2 :=FALSE;
+				GVL.Stacker_Crane_1_Left := TRUE;
+				MovingX  := FALSE;
+				MovingZ  := FALSE;
+				GVL.Estado_Almacen_O := 7 ;
+			END_IF
+			
+		7: // Estado 7, bajamos para soltar la palet 
+			IF  GVL.Stacker_Crane_1_Left_Limit THEN
+				GVL.Stacker_Crane_1_Lift := FALSE;
+				GVL.Estado_Almacen_O := 8;
+			END_IF
+			
+		8: // Estado 8, una vez bajada, volvemos
+			IF  MovingZ THEN
+				GVL.Stacker_Crane_1_Left := FALSE;
+				GVL.Estado_Almacen_O := 9;
+				MovingZ  := FALSE;
+				//GVL.Loading_Conveyor_2 := TRUE;
+			END_IF
+			
+		9: // Estado 9, esperamos hasta que llegue a la posición de reposo
+			IF GVL.Stacker_Crane_1_Middle_Limit THEN
+				GVL.Estado_Almacen_O := 1;
+			END_IF
+	
+	END_CASE
+END_IF]]></ST>
+    </Implementation>
+    <LineIds Name="POU_Almacen">
+      <LineId Id="656" Count="0" />
+      <LineId Id="175" Count="7" />
+      <LineId Id="456" Count="0" />
+      <LineId Id="435" Count="0" />
+      <LineId Id="434" Count="0" />
+      <LineId Id="657" Count="1" />
+      <LineId Id="183" Count="0" />
+      <LineId Id="441" Count="0" />
+      <LineId Id="443" Count="0" />
+      <LineId Id="436" Count="0" />
+      <LineId Id="193" Count="0" />
+      <LineId Id="196" Count="0" />
+      <LineId Id="659" Count="0" />
+      <LineId Id="197" Count="0" />
+      <LineId Id="200" Count="12" />
+      <LineId Id="676" Count="1" />
+      <LineId Id="682" Count="0" />
+      <LineId Id="678" Count="0" />
+      <LineId Id="681" Count="0" />
+      <LineId Id="664" Count="0" />
+      <LineId Id="685" Count="0" />
+      <LineId Id="684" Count="0" />
+      <LineId Id="683" Count="0" />
+      <LineId Id="218" Count="0" />
+      <LineId Id="673" Count="0" />
+      <LineId Id="219" Count="0" />
+      <LineId Id="605" Count="3" />
+      <LineId Id="224" Count="8" />
+      <LineId Id="617" Count="0" />
+      <LineId Id="234" Count="0" />
+      <LineId Id="236" Count="0" />
+      <LineId Id="620" Count="0" />
+      <LineId Id="238" Count="2" />
+      <LineId Id="722" Count="0" />
+      <LineId Id="737" Count="3" />
+      <LineId Id="742" Count="7" />
+      <LineId Id="741" Count="0" />
+      <LineId Id="750" Count="1" />
+      <LineId Id="246" Count="27" />
+      <LineId Id="729" Count="0" />
+      <LineId Id="731" Count="0" />
+      <LineId Id="736" Count="0" />
+      <LineId Id="733" Count="2" />
+      <LineId Id="730" Count="0" />
+      <LineId Id="274" Count="0" />
+      <LineId Id="276" Count="9" />
+      <LineId Id="653" Count="0" />
+      <LineId Id="286" Count="0" />
+      <LineId Id="566" Count="0" />
+      <LineId Id="288" Count="0" />
+      <LineId Id="660" Count="0" />
+      <LineId Id="291" Count="32" />
+      <LineId Id="331" Count="20" />
+      <LineId Id="353" Count="2" />
+      <LineId Id="476" Count="0" />
+      <LineId Id="356" Count="2" />
+      <LineId Id="360" Count="2" />
+      <LineId Id="475" Count="0" />
+      <LineId Id="539" Count="0" />
+      <LineId Id="363" Count="32" />
+      <LineId Id="398" Count="4" />
+      <LineId Id="5" Count="0" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

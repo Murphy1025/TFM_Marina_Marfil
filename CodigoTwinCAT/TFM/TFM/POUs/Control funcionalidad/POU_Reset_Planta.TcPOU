@@ -1,0 +1,63 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <POU Name="POU_Reset_Planta" Id="{a6efa350-34a3-42dc-a73e-66fb207ab0a7}" SpecialFunc="None">
+    <Declaration><![CDATA[PROGRAM POU_Reset_Planta
+VAR
+	i : INT ;
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[	GVL.Reset := TRUE;
+
+	// VARIABLES PARA CONTROLAR ACCIONES	
+	
+	GVL.Control_TAPP_A 			 := FALSE; // En base a la botonera de control y los sensores de puerta, se permite el movimiento o no
+	GVL.Control_TAPP_V 			 := FALSE; // En base a la botonera de control y los sensores de puerta, se permite el movimiento o no
+	GVL.Control_TAPP_M 			 := FALSE; // En base a la botonera de control y los sensores de puerta, se permite el movimiento o no
+	GVL.Control_Paletizador_A 	 := FALSE; // En base a la botonera de control y los sensores de puerta, se permite el movimiento o no
+	GVL.Control_Paletizador_V 	 := FALSE; // En base a la botonera de control y los sensores de puerta, se permite el movimiento o no
+	GVL.Control_Paletizador_M 	 := FALSE; // En base a la botonera de control y los sensores de puerta, se permite el movimiento o no
+	GVL.Control_Almacen 	 := FALSE; // En base a la botonera de control y los sensores de puerta, se permite el movimiento o no		
+	GVL.Error_RFID_1  := FALSE; // Variable que guarda si ha habido error a la hora de escribir información en un palet	
+	GVL.Error_RFID_2  := FALSE; // Variable que guarda si ha habido error a la hora de escribir información en un palet	
+	GVL.Error_RFID_3  := FALSE; // Variable que guarda si ha habido error a la hora de escribir información en un palet
+	GVL.Error_RFID_Almacen  := FALSE; // Variable que guarda si ha habido error a la hora de leer información en un palet	
+	GVL.Linea_Salida_Libre_2  := TRUE; // Control de cinta de salida para el paletizado, si la línea de salida no está libre, no puede sacar el palet
+	GVL.Linea_Salida_Libre_3  := TRUE; // Control de cinta de salida para el paletizado, si la línea de salida no está libre, no puede sacar el palet
+	GVL.Sacar_Palet_1  := FALSE; // Para saber si el palet del paletizador tiene via libre para ser pasado a los rodillos camino al almacen
+	GVL.Sacar_Palet_2  := FALSE; // Para saber si el palet del paletizador tiene via libre para ser pasado a los rodillos camino al almacen
+	GVL.Sacar_Palet_3  := FALSE; // Para saber si el palet del paletizador tiene via libre para ser pasado a los rodillos camino al almacen
+	
+	//ESTADOS	
+	GVL.Estado_Pick_Place_1 	  := 0;
+	GVL.Estado_Palletizer_1 	  := 0;
+	GVL.Estado_Pick_Place_2 	  := 0;
+	GVL.Estado_Palletizer_2 	  := 0;
+	GVL.Estado_Pick_Place_3 	  := 0;
+	GVL.Estado_Palletizer_3 	  := 0;	
+	GVL.Estado_Almacen_I 	 	:= 0; // Almacenar un palet en el almacen
+	GVL.Estado_Almacen_O 	 	:= 1; // Extraer un palet del almacen
+	
+	// ALMACEN
+	
+	GVL.ContadorPalets			 := 0; // Contador de palets del Almacen en base a la selección del display
+	GVL.Retirada_Start			 := FALSE; // Guarda la pulsación del botón start para extraer del almacen
+	GVL.Reset := FALSE;
+	]]></ST>
+    </Implementation>
+    <LineIds Name="POU_Reset_Planta">
+      <LineId Id="144" Count="2" />
+      <LineId Id="234" Count="0" />
+      <LineId Id="228" Count="5" />
+      <LineId Id="147" Count="0" />
+      <LineId Id="152" Count="3" />
+      <LineId Id="227" Count="0" />
+      <LineId Id="225" Count="0" />
+      <LineId Id="236" Count="1" />
+      <LineId Id="235" Count="0" />
+      <LineId Id="163" Count="14" />
+      <LineId Id="88" Count="0" />
+      <LineId Id="5" Count="0" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

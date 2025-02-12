@@ -1,0 +1,67 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <POU Name="POU_Pinzas" Id="{b99bde21-835a-481f-bca0-819bb3481233}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK POU_Pinzas
+VAR_INPUT
+	Falling_Edge_Entrada_Pinza 	: BOOL;
+	Falling_Edge_Salida_Pinza 	: BOOL;
+	Right_Positioner_Clamped 	: BOOL;
+END_VAR
+VAR_OUTPUT
+	Emitter_Box					: BOOL;
+	Right_Positioner_Clamp 		: BOOL;
+	Right_Positioner_Raise 		: BOOL;	
+END_VAR
+VAR_IN_OUT
+	Cinta_Libre 				: BOOL;
+	Contador_Manipulador_Base 	: INT;
+	Contador_Box 				: INT;	
+	Hay_Pieza 					: WSTRING ;
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[// ACCIONES PINZA 2
+
+// muevo la cinta si no hay pieza en el posicionador
+// Si entra una pieza al posicionador, cierro la pinza y paro la cinta
+IF Falling_Edge_Entrada_Pinza THEN 
+	Right_Positioner_Clamp := TRUE;
+	Cinta_Libre := FALSE;
+	
+END_IF
+
+// Una vez cerrada la pinza vuelvo a abrirla
+IF Right_Positioner_Clamped THEN
+	
+	Right_Positioner_Clamp := FALSE;
+	Hay_Pieza := "Base";
+	
+END_IF
+
+// Si hay pieza soldada levanto la pinza
+IF Hay_Pieza = "Completa" THEN
+	
+	Right_Positioner_Raise:=TRUE;
+	Cinta_Libre := TRUE;
+	Hay_Pieza := "Vacio";	
+	
+END_IF
+
+Emitter_Box := Falling_Edge_Salida_Pinza;
+	
+// Una vez la pieza haya pasado el clamp, lo bajamos para posicionar la siguiente pieza
+IF Falling_Edge_Salida_Pinza THEN
+	
+	Right_Positioner_Raise := FALSE;	
+	Contador_Manipulador_Base := Contador_Manipulador_Base-1;
+	Contador_Box := Contador_Box +1;
+	
+END_IF]]></ST>
+    </Implementation>
+    <LineIds Name="POU_Pinzas">
+      <LineId Id="10" Count="4" />
+      <LineId Id="16" Count="30" />
+      <LineId Id="9" Count="0" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

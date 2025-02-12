@@ -1,0 +1,16 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <DUT Name="DUT_Guardado_Almacen" Id="{d8922976-1cd6-4205-bb45-29383a0fb0b1}">
+    <Declaration><![CDATA[TYPE DUT_Guardado_Almacen :
+STRUCT
+	Color 			  : DINT; // Color de las piezas
+	Fecha_Hora 		  : DT;   // Fecha y hora almacenado
+	Visibilidad_Azul  : BOOL; // Control visualización HMI
+	Visibilidad_Verde : BOOL; // Control visualización HMI	
+	Visibilidad_Metal : BOOL; // Control visualización HMI		
+	Visibilidad_Vacio : BOOL; // Control visualización HMI
+END_STRUCT
+END_TYPE
+]]></Declaration>
+  </DUT>
+</TcPlcObject>
