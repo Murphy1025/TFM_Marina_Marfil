@@ -1,0 +1,240 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <POU Name="POU_Control_Estaciones" Id="{5ccb67e5-d4da-4b0a-8f4a-5e8b80ae3333}" SpecialFunc="None">
+    <Declaration><![CDATA[PROGRAM POU_Control_Estaciones
+VAR
+	
+//Control_Almacen : BOOL := FALSE;
+	Biestable_Almacen 					: SR;
+	Biestable_TAPP_A 					: SR;
+	Biestable_TAPP_V 					: SR;
+	Biestable_TAPP_M 					: SR;
+	Biestable_Paletizador_A 			: SR;	
+	Biestable_Paletizador_M 			: SR;
+	Biestable_Paletizador_V 			: SR;
+	Estado_Almacen						: INT := 0;
+	FB_Control_Estacion_Almacen 		: FB_Control_Estacion();
+	FB_Control_Estacion_Paletizador_A 	: FB_Control_Estacion();
+	FB_Control_Estacion_Paletizador_V	: FB_Control_Estacion();
+	FB_Control_Estacion_Paletizador_M 	: FB_Control_Estacion();
+	FB_Control_Estacion_TAPP_A 			: FB_Control_Estacion();		
+	FB_Control_Estacion_TAPP_V			: FB_Control_Estacion();		
+	FB_Control_Estacion_TAPP_M 			: FB_Control_Estacion();
+	
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[// Si alguna de las puertas se abren, el robot deja de funcionar hasta que se vuelva a pulsar el start	
+		IF GVL.Diffuse_Sensor_45 THEN GVL.Machine_Center_1_Stop := FALSE; END_IF
+		IF GVL.Diffuse_Sensor_46 THEN GVL.Machine_Center_2_Stop := FALSE; END_IF
+		IF GVL.Diffuse_Sensor_47 THEN GVL.Machine_Center_3_Stop := FALSE; END_IF
+		IF GVL.Diffuse_Sensor_48 THEN GVL.Machine_Center_4_Stop := FALSE; END_IF
+		IF GVL.Diffuse_Sensor_49 THEN GVL.Machine_Center_5_Stop := FALSE; END_IF
+		IF GVL.Diffuse_Sensor_50 THEN GVL.Machine_Center_6_Stop := FALSE; END_IF
+		
+	// Two Axis Pick and Place Azul
+		
+		FB_Control_Estacion_TAPP_A(Start_Button := GVL.Start_Button_3,
+			Stop_Button := GVL.Stop_Button_3, 
+			Reset_Button := GVL.Reset_Button_3,
+			Safety_Door:= GVL.Safety_Door_1 AND GVL.Safety_Door_2,
+			Estado:=GVL.Estado_Pick_Place_1,
+			Control => GVL.Control_TAPP_A,
+			Start_Button_Light =>GVL.Start_Button_3_Light,
+			Stop_Button_Light =>GVL.Stop_Button_3_Light,
+			Reset_Button_Light =>GVL.Reset_Button_3_Light,
+			Stack_Light_Green =>GVL.Stack_Light_1_Green,
+			Stack_Light_Red =>GVL.Stack_Light_1_Red,
+			Stack_Light_Yellow =>GVL.Stack_Light_1_Yellow);
+			
+		GVL.Stack_Light_2_Green := GVL.Stack_Light_1_Green;
+		GVL.Stack_Light_2_Red := GVL.Stack_Light_1_Red;
+		GVL.Stack_Light_2_Yellow := GVL.Stack_Light_1_Yellow;
+
+	// Paletizador Azul
+		
+		FB_Control_Estacion_Paletizador_A(Start_Button := GVL.Start_Button_6,
+			Stop_Button := GVL.Stop_Button_6, 
+			Reset_Button := GVL.Reset_Button_6,
+			Safety_Door:= GVL.Safety_Door_3 AND GVL.Safety_Door_4,
+			Estado:=GVL.Estado_Palletizer_1,
+			Control => GVL.Control_Paletizador_A,
+			Start_Button_Light =>GVL.Start_Button_6_Light,
+			Stop_Button_Light =>GVL.Stop_Button_6_Light,
+			Reset_Button_Light =>GVL.Reset_Button_6_Light,
+			Stack_Light_Green =>GVL.Stack_Light_3_Green,
+			Stack_Light_Red =>GVL.Stack_Light_3_Red,
+			Stack_Light_Yellow =>GVL.Stack_Light_3_Yellow);
+			
+		GVL.Stack_Light_4_Green := GVL.Stack_Light_3_Green;
+		GVL.Stack_Light_4_Red := GVL.Stack_Light_3_Red;
+		GVL.Stack_Light_4_Yellow := GVL.Stack_Light_3_Yellow;
+	
+	// Two Axis Pick and Place Verde
+				
+		FB_Control_Estacion_TAPP_V(Start_Button := GVL.Start_Button_4,
+			Stop_Button := GVL.Stop_Button_4, 
+			Reset_Button := GVL.Reset_Button_4,
+			Safety_Door:= GVL.Safety_Door_5 AND GVL.Safety_Door_6,
+			Estado:=GVL.Estado_Pick_Place_2,
+			Control => GVL.Control_TAPP_V,
+			Start_Button_Light =>GVL.Start_Button_4_Light,
+			Stop_Button_Light =>GVL.Stop_Button_4_Light,
+			Reset_Button_Light =>GVL.Reset_Button_4_Light,
+			Stack_Light_Green =>GVL.Stack_Light_5_Green,
+			Stack_Light_Red =>GVL.Stack_Light_5_Red,
+			Stack_Light_Yellow =>GVL.Stack_Light_5_Yellow);
+			
+		GVL.Stack_Light_6_Green := GVL.Stack_Light_5_Green;
+		GVL.Stack_Light_6_Red := GVL.Stack_Light_5_Red;
+		GVL.Stack_Light_6_Yellow := GVL.Stack_Light_5_Yellow;
+			
+	// Paletizador Verde
+	
+		FB_Control_Estacion_Paletizador_V(Start_Button := GVL.Start_Button_7,
+			Stop_Button := GVL.Stop_Button_7, 
+			Reset_Button := GVL.Reset_Button_7,
+			Safety_Door:= GVL.Safety_Door_7 AND GVL.Safety_Door_8,
+			Estado:=GVL.Estado_Palletizer_2,
+			Control => GVL.Control_Paletizador_V,
+			Start_Button_Light =>GVL.Start_Button_7_Light,
+			Stop_Button_Light =>GVL.Stop_Button_7_Light,
+			Reset_Button_Light =>GVL.Reset_Button_7_Light,
+			Stack_Light_Green =>GVL.Stack_Light_7_Green,
+			Stack_Light_Red =>GVL.Stack_Light_7_Red,
+			Stack_Light_Yellow =>GVL.Stack_Light_7_Yellow);
+			
+		GVL.Stack_Light_8_Green := GVL.Stack_Light_7_Green;
+		GVL.Stack_Light_8_Red 	:= GVL.Stack_Light_7_Red;
+		GVL.Stack_Light_8_Yellow := GVL.Stack_Light_7_Yellow;
+			
+	
+	// Two Axis Pick and Place Metal
+		
+		FB_Control_Estacion_TAPP_M(Start_Button := GVL.Start_Button_5,
+			Stop_Button := GVL.Stop_Button_5, 
+			Reset_Button := GVL.Reset_Button_5,
+			Safety_Door:= GVL.Safety_Door_9 AND GVL.Safety_Door_10,
+			Estado:=GVL.Estado_Pick_Place_3,
+			Control => GVL.Control_TAPP_M,
+			Start_Button_Light =>GVL.Start_Button_5_Light,
+			Stop_Button_Light =>GVL.Stop_Button_5_Light,
+			Reset_Button_Light =>GVL.Reset_Button_5_Light,
+			Stack_Light_Green =>GVL.Stack_Light_9_Green,
+			Stack_Light_Red =>GVL.Stack_Light_9_Red,
+			Stack_Light_Yellow =>GVL.Stack_Light_9_Yellow);
+			
+		GVL.Stack_Light_10_Green := GVL.Stack_Light_9_Green;
+		GVL.Stack_Light_10_Red := GVL.Stack_Light_9_Red;
+		GVL.Stack_Light_10_Yellow := GVL.Stack_Light_9_Yellow;
+		
+	// Paletizador Metal
+		
+		FB_Control_Estacion_Paletizador_M(Start_Button := GVL.Start_Button_8,
+			Stop_Button := GVL.Stop_Button_8, 
+			Reset_Button := GVL.Reset_Button_8,
+			Safety_Door:= GVL.Safety_Door_11 AND GVL.Safety_Door_12,
+			Estado:=GVL.Estado_Palletizer_3,
+			Control => GVL.Control_Paletizador_M,
+			Start_Button_Light =>GVL.Start_Button_8_Light,
+			Stop_Button_Light =>GVL.Stop_Button_8_Light,
+			Reset_Button_Light =>GVL.Reset_Button_8_Light,
+			Stack_Light_Green =>GVL.Stack_Light_11_Green,
+			Stack_Light_Red =>GVL.Stack_Light_11_Red,
+			Stack_Light_Yellow =>GVL.Stack_Light_11_Yellow);
+			
+		GVL.Stack_Light_12_Green := GVL.Stack_Light_11_Green;
+		GVL.Stack_Light_12_Red 	:= GVL.Stack_Light_11_Red;
+		GVL.Stack_Light_12_Yellow := GVL.Stack_Light_11_Yellow;
+	
+	// Retirada almacen
+		Biestable_Almacen(SET1:= GVL.Start_Button_1 , RESET:= NOT GVL.Stop_Button_1 ); // Si están los dos pulsados le da prioridad al star ¿ Lo cambio por los IF para que tenga prioridad del stop??????************
+		GVL.Retirada_Start := Biestable_Almacen.Q1;
+		
+		(*FB_Control_Estacion_Almacen(Start_Button := GVL.Start_Button_1,
+			Stop_Button := GVL.Stop_Button_1, 
+			Reset_Button := GVL.Reset_Button_1,
+			Safety_Door:= GVL.Safety_Door_13 AND GVL.Safety_Door_14 AND GVL.Safety_Door_15,
+			Estado:=Estado_Almacen_O,
+			Control => GVL.Control_Almacen_O,
+			Start_Button_Light =>GVL.Start_Button_1_Light,
+			Stop_Button_Light =>GVL.Stop_Button_1_Light,
+			Reset_Button_Light =>GVL.Reset_Button_1_Light,
+			Stack_Light_Green =>Light_Green_O,
+			Stack_Light_Red =>Light_Red_O,
+			Stack_Light_Yellow =>Light_Yellow_O);*)
+			
+		FB_Control_Estacion_Almacen(Start_Button := GVL.Start_Button_9,
+			Stop_Button := GVL.Stop_Button_9, 
+			Reset_Button := GVL.Reset_Button_9,
+			Safety_Door:= GVL.Safety_Door_13 AND GVL.Safety_Door_14 AND GVL.Safety_Door_15,
+			Estado:=Estado_Almacen,
+			Control => GVL.Control_Almacen,
+			Start_Button_Light =>GVL.Start_Button_9_Light,
+			Stop_Button_Light =>GVL.Stop_Button_9_Light,
+			Reset_Button_Light =>GVL.Reset_Button_9_Light,
+			Stack_Light_Green =>GVL.Stack_Light_13_Green,
+			Stack_Light_Red =>GVL.Stack_Light_13_Red,
+			Stack_Light_Yellow =>GVL.Stack_Light_13_Yellow);
+		
+		GVL.Stack_Light_14_Green := GVL.Stack_Light_13_Green;
+		GVL.Stack_Light_14_Red 	:= GVL.Stack_Light_13_Red;
+		GVL.Stack_Light_14_Yellow := GVL.Stack_Light_13_Yellow;
+			
+		IF GVL.Retirada_Start THEN GVL.Estado_Almacen_O := Estado_Almacen; ELSE GVL.Estado_Almacen_I:=Estado_Almacen;END_IF]]></ST>
+    </Implementation>
+    <LineIds Name="POU_Control_Estaciones">
+      <LineId Id="6" Count="8" />
+      <LineId Id="64" Count="0" />
+      <LineId Id="234" Count="0" />
+      <LineId Id="86" Count="4" />
+      <LineId Id="65" Count="1" />
+      <LineId Id="58" Count="0" />
+      <LineId Id="82" Count="1" />
+      <LineId Id="81" Count="0" />
+      <LineId Id="116" Count="0" />
+      <LineId Id="118" Count="1" />
+      <LineId Id="117" Count="0" />
+      <LineId Id="233" Count="0" />
+      <LineId Id="232" Count="0" />
+      <LineId Id="22" Count="0" />
+      <LineId Id="92" Count="10" />
+      <LineId Id="91" Count="0" />
+      <LineId Id="120" Count="0" />
+      <LineId Id="122" Count="1" />
+      <LineId Id="121" Count="0" />
+      <LineId Id="23" Count="1" />
+      <LineId Id="27" Count="0" />
+      <LineId Id="104" Count="10" />
+      <LineId Id="103" Count="0" />
+      <LineId Id="28" Count="0" />
+      <LineId Id="125" Count="1" />
+      <LineId Id="124" Count="0" />
+      <LineId Id="127" Count="0" />
+      <LineId Id="29" Count="0" />
+      <LineId Id="145" Count="0" />
+      <LineId Id="163" Count="14" />
+      <LineId Id="162" Count="0" />
+      <LineId Id="146" Count="0" />
+      <LineId Id="33" Count="1" />
+      <LineId Id="128" Count="0" />
+      <LineId Id="130" Count="14" />
+      <LineId Id="129" Count="0" />
+      <LineId Id="38" Count="1" />
+      <LineId Id="178" Count="0" />
+      <LineId Id="180" Count="14" />
+      <LineId Id="179" Count="0" />
+      <LineId Id="43" Count="2" />
+      <LineId Id="5" Count="0" />
+      <LineId Id="196" Count="0" />
+      <LineId Id="198" Count="11" />
+      <LineId Id="247" Count="0" />
+      <LineId Id="235" Count="10" />
+      <LineId Id="255" Count="0" />
+      <LineId Id="259" Count="0" />
+      <LineId Id="211" Count="1" />
+      <LineId Id="197" Count="0" />
+      <LineId Id="214" Count="1" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

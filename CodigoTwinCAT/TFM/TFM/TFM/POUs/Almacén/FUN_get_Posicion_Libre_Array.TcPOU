@@ -1,0 +1,30 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <POU Name="FUN_get_Posicion_Libre_Array" Id="{e0d49efd-f70e-4636-abeb-9bcb917a76b3}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION FUN_get_Posicion_Libre_Array : INT
+VAR_INPUT
+END_VAR
+VAR
+	i 		: INT;
+	libre 	: BOOL := TRUE;
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[// Retorna la primera posicion libre (0) del array Clasificados
+FOR i := 0 TO 53 DO
+	IF GVL.Clasificados[i].Color = 0 AND libre THEN
+		FUN_get_Posicion_Libre_Array := i+1;
+		libre := FALSE;
+	END_IF
+END_FOR
+
+IF libre THEN
+	FUN_get_Posicion_Libre_Array := 0;
+END_IF]]></ST>
+    </Implementation>
+    <LineIds Name="FUN_get_Posicion_Libre_Array">
+      <LineId Id="10" Count="9" />
+      <LineId Id="7" Count="0" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

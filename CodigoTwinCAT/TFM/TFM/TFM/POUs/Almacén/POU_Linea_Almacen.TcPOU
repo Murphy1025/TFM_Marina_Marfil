@@ -1,0 +1,80 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <POU Name="POU_Linea_Almacen" Id="{f5730751-c90f-42d7-8229-f2209a064127}" SpecialFunc="None">
+    <Declaration><![CDATA[PROGRAM POU_Linea_Almacen
+VAR
+
+	Cruce_1 : POU_Cruce_Almacen;
+	Cruce_2 : POU_Cruce_Almacen;
+	
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[// ---------------------------------------------------------------- 1. CRUCES ----------------------------------------------------------------
+
+Cruce_1 (
+	Contador_Corto :=GVL.Contador_Palets_Verdes,
+	Contador_Largo :=GVL.Contador_Palets_Azules,
+	Diffuse_Sensor_Corto := GVL.Diffuse_Sensor_40,
+	Diffuse_Sensor_Largo:= GVL.Diffuse_Sensor_39,
+	Falling_Edge_Sensor_Salida :=POU_Edges.Falling_Edge_Sensor_Salida_C1.Q,
+	Falling_Edge_Sensor_Secundario :=POU_Edges.Falling_Edge_Sensor_Secundario_C1.Q,
+	Rasing_Edge_Sensor_Principal :=POU_Edges.Rasing_Edge_Sensor_Principal_C1.Q,
+	Sacar_Palet_Paletizador := GVL.Sacar_Palet_2,
+	Sacar_Palet_Turntable := GVL.Contador_Linea_Cruce_1 <5,
+	Turnable_Back_Limit := GVL.Turnable_1_Back_Limit,	
+	Turnable_Limit_0 :=GVL.Turnable_1_Limit_0,
+	Turnable_Limit_90 :=GVL.Turnable_1_Limit_90,
+	Roller_Conveyor_Corto => GVL.Roller_Conveyor_2m_4 ,
+	Roller_Conveyor_Largo => GVL.Roller_Conveyor_4m_1,
+	Turnable_Roll_menos => GVL.Turnable_1_Roll_menos,
+	Turnable_Turn => GVL.Turnable_1_Turn );
+	
+Cruce_2 (
+	Contador_Corto :=GVL.Contador_Palets_Metal,
+	Contador_Largo :=GVL.Contador_Linea_Cruce_2,
+	Diffuse_Sensor_Corto := GVL.Diffuse_Sensor_42,
+	Diffuse_Sensor_Largo:= GVL.Diffuse_Sensor_41,
+	Falling_Edge_Sensor_Salida :=POU_Edges.Falling_Edge_Sensor_Salida_C2.Q,
+	Falling_Edge_Sensor_Secundario :=POU_Edges.Falling_Edge_Sensor_Secundario_C2.Q,
+	Rasing_Edge_Sensor_Principal :=POU_Edges.Rasing_Edge_Sensor_Principal_C2.Q,
+	Sacar_Palet_Paletizador := GVL.Sacar_Palet_3,
+	Sacar_Palet_Turntable := GVL.Contador_Linea_Cruce_2 <3,
+	Turnable_Back_Limit := GVL.Turnable_2_Back_Limit,	
+	Turnable_Limit_0 :=GVL.Turnable_2_Limit_0,
+	Turnable_Limit_90 :=GVL.Turnable_2_Limit_90,
+	Roller_Conveyor_Corto => GVL.Roller_Conveyor_2m_7 ,
+	Roller_Conveyor_Largo => GVL.Roller_Conveyor_2m_5,
+	Turnable_Roll_menos => GVL.Turnable_2_Roll_menos,
+	Turnable_Turn => GVL.Turnable_2_Turn );
+	
+
+// ---------------------------------------------------------------- 2. ALMACEN ----------------------------------------------------------------
+
+POU_Almacen();]]></ST>
+    </Implementation>
+    <LineIds Name="POU_Linea_Almacen">
+      <LineId Id="685" Count="0" />
+      <LineId Id="688" Count="1" />
+      <LineId Id="709" Count="0" />
+      <LineId Id="708" Count="0" />
+      <LineId Id="690" Count="5" />
+      <LineId Id="734" Count="0" />
+      <LineId Id="710" Count="0" />
+      <LineId Id="697" Count="1" />
+      <LineId Id="711" Count="0" />
+      <LineId Id="713" Count="1" />
+      <LineId Id="703" Count="0" />
+      <LineId Id="715" Count="0" />
+      <LineId Id="717" Count="8" />
+      <LineId Id="735" Count="0" />
+      <LineId Id="726" Count="5" />
+      <LineId Id="716" Count="0" />
+      <LineId Id="707" Count="0" />
+      <LineId Id="207" Count="0" />
+      <LineId Id="96" Count="0" />
+      <LineId Id="211" Count="0" />
+      <LineId Id="320" Count="0" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

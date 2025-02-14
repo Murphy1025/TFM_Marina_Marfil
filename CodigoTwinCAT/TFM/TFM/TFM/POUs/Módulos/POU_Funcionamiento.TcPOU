@@ -1,0 +1,239 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <POU Name="POU_Funcionamiento" Id="{9823123b-3301-4d97-a31b-5a459e49f494}" SpecialFunc="None">
+    <Declaration><![CDATA[PROGRAM POU_Funcionamiento
+VAR
+	// Instancias
+	Etapa1_1 				: Etapa1;
+	Linea_Produccion_1 		: Linea_Produccion;	
+	Linea_Produccion_2 		: Linea_Produccion;	
+	Linea_Produccion_3 		: Linea_Produccion;
+	
+	
+	Biestable_Emisor 		: SR;
+	Parada 					: BOOL := TRUE;
+	Puerta_MC1_Abierta		: BOOL := TRUE;	
+	
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[
+IF GVL.Marcha THEN
+	
+	 // ---------------------------------------------------------------- FALLING Y RASING EDGES ----------------------------------------------------------------
+
+		POU_Edges ();
+		
+	// ---------------------------------------------------------------- PANELES CONTROL ----------------------------------------------------------------
+	
+		POU_Control_Estaciones();
+	
+	// ---------------------------------------------------------------- FUNCIONALIDAD ----------------------------------------------------------------
+	
+		Contadores_Control_Lineas ();		
+		//Etapa1_1();	
+		(*Linea_Produccion_1(
+			Diffuse_Sensor_Corto := GVL.Diffuse_Sensor_7,
+			Diffuse_Sensor_Largo := GVL.Diffuse_Sensor_6,
+			Diffuse_Sensor_PP_Lid := GVL.Diffuse_Sensor_19,
+			Diffuse_Sensor_PP_Base := GVL.Diffuse_Sensor_20,
+			Diffuse_Sensor_PP_Salida := GVL.Diffuse_Sensor_21,	
+			Diffuse_Sensor_Pallet_Pieza := GVL.Diffuse_Sensor_22,
+			Diffuse_Sensor_Manipulador_Lid := GVL.Diffuse_Sensor_17,
+			Diffuse_Sensor_Manipulador_Base := GVL.Diffuse_Sensor_18,
+			Max_Capas_Apiladas := GVL.Input[0].Max_Capas_Apiladas_Azul,
+			Palletizer_Clamped := GVL.Palletizer_1_Clamped,	
+			Palletizer_Plate_Limit := GVL.Palletizer_1_Plate_Limit,
+			Palletizer_Push_Limit := GVL.Palletizer_1_Pusher_Limit,
+			Palletizer_Elevator_Moving := GVL.Palletizer_1_Elevator_Moving,
+			Palletizer_Elevator_Back := GVL.Palletizer_1_Elevator_Back_Limit,
+			Palletizer_Elevator_Front := GVL.Palletizer_1_Elevator_Front_Limit,
+			RFID_Reader_Command_ID := GVL.RFID_Reader_1_Command_ID,
+			RFID_Reader_Status := GVL.RFID_Reader_1_Status,
+			Right_Positioner_1_Clamped := GVL.Right_Positioner_1_Clamped,		
+			Right_Positioner_2_Clamped := GVL.Right_Positioner_2_Clamped,		
+			Right_Positioner_2_Limit := GVL.Right_Positioner_2_Limit,		
+			Two_Axis_Pick_Place_1_Detected := GVL.Two_Axis_Pick_Place_1_Detected,		
+			Two_Axis_Pick_Place_1_MovingX := GVL.Two_Axis_Pick_Place_1_MovingX,
+			Two_Axis_Pick_Place_1_MovingZ := GVL.Two_Axis_Pick_Place_1_MovingZ,	
+			Linea_Salida_Libre := GVL.Roller_Conveyor_6m_1,	
+			Control_TAPP := Control_TAPP_A,
+			Control_Paletizador := Control_Paletizador_A,
+			Emitter := GVL.Emitter_2,
+			Sacar_Palet := GVL.Sacar_Palet_1,
+			Error_RFID := GVL.Error_RFID_1,			
+			Estado_Pick_Place_1 := GVL.Estado_Pick_Place_1,
+			Estado_Palletizer_1 := GVL.Estado_Palletizer_1,
+			Pallet_1_Emitidos := GVL.Pallets_Azules_Totales_Emitidos,
+			Contador_Manipulador_Lid := GVL.Contador_Manipulador_1_Lid,
+			Contador_Manipulador_Base := GVL.Contador_Manipulador_1_Base,
+			Contador_Box := GVL.Contador_Box_Azul,
+			Belt_Conveyor_Lid => GVL.Belt_Conveyor_4m_6,
+			Belt_Conveyor_Base => GVL.Belt_Conveyor_4m_7,
+			Belt_Conveyor_M_1_Lid => gvl.Belt_Conveyor_2m_13,
+			Belt_Conveyor_M_1_Base => GVL.Belt_Conveyor_2m_14,	
+			Belt_Conveyor_M_2_Lid => GVL.Belt_Conveyor_4m_4,
+			Belt_Conveyor_M_2_Base => GVL.Belt_Conveyor_4m_5,
+			Belt_Conveyor_Box_1 => GVL.Belt_Conveyor_2m_15,	
+			Belt_Conveyor_Box_2 => GVL.Belt_Conveyor_Inclined_1,		
+			Emitter_Box => GVL.Emitter_5,
+			Palletizer_Belt_mas => GVL.Palletizer_1_Belt_mas,
+			Palletizer_Chain_mas => GVL.Palletizer_1_Chain_mas,
+			Palletizer_Clamp => GVL.Palletizer_1_Clamb,
+			Palletizer_Elevator_Move_Limit => GVL.Palletizer_1_Elevator_Move_Limit,
+			Palletizer_Elevator_Move_Mas => GVL.Palletizer_1_Elevator_mas,
+			Palletizer_Elevator_Move_Menos => GVL.Palletizer_1_Elevator_menos,
+			Palletizer_Open_Plate => GVL.Palletizer_1_Open_Plate,
+			Palletizer_Push => GVL.Palletizer_1_Push,
+			Palletizer_Turn => GVL.Palletizer_1_Turn,
+			Pivot_Arm => GVL.Pivot_Arm_Sorter_2_Turn,
+			RFID_Reader_Execute_Command => GVL.RFID_Reader_1_Ejecute_Comm,
+			Right_Positioner_1_Clamp => GVL.Right_Positioner_1_Clamp,
+			Right_Positioner_2_Clamp => GVL.Right_Positioner_2_Clamp,
+			Right_Positioner_2_Raise => GVL.Right_Positioner_2_Raise,
+			Roller_Conveyor_2m_1 => GVL.Roller_Conveyor_2m_1,
+			Two_Axis_Pick_Place_1X => GVL.Two_Axis_Pick_Place_1X,
+			Two_Axis_Pick_Place_1Z => GVL.Two_Axis_Pick_Place_1Z,
+			Two_Axis_Pick_Place_1_Grab => GVL.Two_Axis_Pick_Place_1_Grab);*)
+		
+		(*Linea_Produccion_2(
+			Diffuse_Sensor_Corto := GVL.Diffuse_Sensor_11,
+			Diffuse_Sensor_Largo := GVL.Diffuse_Sensor_10,
+			Diffuse_Sensor_PP_Lid := GVL.Diffuse_Sensor_27,
+			Diffuse_Sensor_PP_Base := GVL.Diffuse_Sensor_28,
+			Diffuse_Sensor_PP_Salida := GVL.Diffuse_Sensor_29,	
+			Diffuse_Sensor_Pallet_Pieza := GVL.Diffuse_Sensor_30,
+			Diffuse_Sensor_Manipulador_Lid := GVL.Diffuse_Sensor_25,
+			Diffuse_Sensor_Manipulador_Base := GVL.Diffuse_Sensor_26,
+			Max_Capas_Apiladas := GVL.Input[0].Max_Capas_Apiladas_Verde,
+			Palletizer_Clamped := GVL.Palletizer_2_Clamped,	
+			Palletizer_Plate_Limit := GVL.Palletizer_2_Plate_Limit,
+			Palletizer_Push_Limit := GVL.Palletizer_2_Pusher_Limit,
+			Palletizer_Elevator_Moving := GVL.Palletizer_2_Elevator_Moving,
+			Palletizer_Elevator_Back := GVL.Palletizer_2_Elevator_Back_Limit,
+			Palletizer_Elevator_Front := GVL.Palletizer_2_Elevator_Front_Limit,
+			RFID_Reader_Command_ID := GVL.RFID_Reader_2_Command_ID,
+			RFID_Reader_Status := GVL.RFID_Reader_2_Status,
+			Right_Positioner_1_Clamped := GVL.Right_Positioner_3_Clamped,		
+			Right_Positioner_2_Clamped := GVL.Right_Positioner_4_Clamped,		
+			Right_Positioner_2_Limit := GVL.Right_Positioner_4_Limit,		
+			Two_Axis_Pick_Place_1_Detected := GVL.Two_Axis_Pick_Place_2_Detected,		
+			Two_Axis_Pick_Place_1_MovingX := GVL.Two_Axis_Pick_Place_2_MovingX,
+			Two_Axis_Pick_Place_1_MovingZ := GVL.Two_Axis_Pick_Place_2_MovingZ,	
+			Linea_Salida_Libre := GVL.Linea_Salida_Libre_2,	
+			Control_TAPP := Control_TAPP_V,
+			Control_Paletizador := Control_Paletizador_V,
+			Emitter := GVL.Emitter_3,
+			Sacar_Palet := GVL.Sacar_Palet_2,
+			Error_RFID := GVL.Error_RFID_2,
+			Pallet_1_Emitidos := GVL.Pallets_Verdes_Totales_Emitidos,
+			Contador_Manipulador_Lid := GVL.Contador_Manipulador_2_Lid,
+			Contador_Manipulador_Base := GVL.Contador_Manipulador_2_Base,
+			Contador_Box := GVL.Contador_Box_Verde,
+			Belt_Conveyor_Lid => GVL.Belt_Conveyor_4m_10,
+			Belt_Conveyor_Base => GVL.Belt_Conveyor_4m_11,
+			Belt_Conveyor_M_1_Lid => gvl.Belt_Conveyor_2m_16,
+			Belt_Conveyor_M_1_Base => GVL.Belt_Conveyor_2m_17,	
+			Belt_Conveyor_M_2_Lid => GVL.Belt_Conveyor_4m_8,
+			Belt_Conveyor_M_2_Base => GVL.Belt_Conveyor_4m_9,
+			Belt_Conveyor_Box_1 => GVL.Belt_Conveyor_2m_18,	
+			Belt_Conveyor_Box_2 => GVL.Belt_Conveyor_Inclined_2,		
+			Emitter_Box => GVL.Emitter_6,
+			Palletizer_Belt_mas => GVL.Palletizer_2_Belt_mas,
+			Palletizer_Chain_mas => GVL.Palletizer_2_Chain_mas,
+			Palletizer_Clamp => GVL.Palletizer_2_Clamb,
+			Palletizer_Elevator_Move_Limit => GVL.Palletizer_2_Elevator_Move_Limit,
+			Palletizer_Elevator_Move_Mas => GVL.Palletizer_2_Elevator_mas,
+			Palletizer_Elevator_Move_Menos => GVL.Palletizer_2_Elevator_menos,
+			Palletizer_Open_Plate => GVL.Palletizer_2_Open_Plate,
+			Palletizer_Push => GVL.Palletizer_2_Push,
+			Palletizer_Turn => GVL.Palletizer_2_Turn,
+			Pivot_Arm => GVL.Pivot_Arm_Sorter_3_Turn,
+			RFID_Reader_Execute_Command => GVL.RFID_Reader_2_Ejecute_Comm,
+			Right_Positioner_1_Clamp => GVL.Right_Positioner_3_Clamp,
+			Right_Positioner_2_Clamp => GVL.Right_Positioner_4_Clamp,
+			Right_Positioner_2_Raise => GVL.Right_Positioner_4_Raise,
+			Roller_Conveyor_2m_1 => GVL.Roller_Conveyor_2m_4,
+			Two_Axis_Pick_Place_1X => GVL.Two_Axis_Pick_Place_2X,
+			Two_Axis_Pick_Place_1Z => GVL.Two_Axis_Pick_Place_2Z,
+			Two_Axis_Pick_Place_1_Grab => GVL.Two_Axis_Pick_Place_2_Grab);
+			*)
+		(*Linea_Produccion_3(
+			Diffuse_Sensor_Corto := GVL.Diffuse_Sensor_14,
+			Diffuse_Sensor_Largo := GVL.Diffuse_Sensor_13,
+			Diffuse_Sensor_PP_Lid := GVL.Diffuse_Sensor_35,
+			Diffuse_Sensor_PP_Base := GVL.Diffuse_Sensor_36,
+			Diffuse_Sensor_PP_Salida := GVL.Diffuse_Sensor_37,	
+			Diffuse_Sensor_Pallet_Pieza := GVL.Diffuse_Sensor_38,
+			Diffuse_Sensor_Manipulador_Lid := GVL.Diffuse_Sensor_33,
+			Diffuse_Sensor_Manipulador_Base := GVL.Diffuse_Sensor_34,
+			Max_Capas_Apiladas := GVL.Input[0].Max_Capas_Apiladas_Metal,
+			Palletizer_Clamped := GVL.Palletizer_3_Clamped,	
+			Palletizer_Plate_Limit := GVL.Palletizer_3_Plate_Limit,
+			Palletizer_Push_Limit := GVL.Palletizer_3_Pusher_Limit,
+			Palletizer_Elevator_Moving := GVL.Palletizer_3_Elevator_Moving,
+			Palletizer_Elevator_Back := GVL.Palletizer_3_Elevator_Back_Limit,
+			Palletizer_Elevator_Front := GVL.Palletizer_3_Elevator_Front_Limit,
+			RFID_Reader_Command_ID := GVL.RFID_Reader_3_Command_ID,
+			RFID_Reader_Status := GVL.RFID_Reader_3_Status,
+			Right_Positioner_1_Clamped := GVL.Right_Positioner_5_Clamped,		
+			Right_Positioner_2_Clamped := GVL.Right_Positioner_6_Clamped,		
+			Right_Positioner_2_Limit := GVL.Right_Positioner_6_Limit,		
+			Two_Axis_Pick_Place_1_Detected := GVL.Two_Axis_Pick_Place_3_Detected,		
+			Two_Axis_Pick_Place_1_MovingX := GVL.Two_Axis_Pick_Place_3_MovingX,
+			Two_Axis_Pick_Place_1_MovingZ := GVL.Two_Axis_Pick_Place_3_MovingZ,	
+			Linea_Salida_Libre := GVL.Roller_Conveyor_6m_1,	
+			Control_TAPP := Control_TAPP_M,
+			Control_Paletizador := Control_Paletizador_M,
+			Emitter := GVL.Emitter_4,
+			Sacar_Palet := GVL.Sacar_Palet_3,
+			Error_RFID := GVL.Error_RFID_3,
+			Pallet_1_Emitidos := GVL.Pallets_Metalicos_Totales_Emitidos,
+			Contador_Manipulador_Lid := GVL.Contador_Manipulador_3_Lid,
+			Contador_Manipulador_Base := GVL.Contador_Manipulador_3_Base,
+			Contador_Box := GVL.Contador_Box_Metal,
+			Belt_Conveyor_Lid => GVL.Belt_Conveyor_4m_14,
+			Belt_Conveyor_Base => GVL.Belt_Conveyor_4m_15,
+			Belt_Conveyor_M_1_Lid => gvl.Belt_Conveyor_2m_19,
+			Belt_Conveyor_M_1_Base => GVL.Belt_Conveyor_2m_20,	
+			Belt_Conveyor_M_2_Lid => GVL.Belt_Conveyor_4m_12,
+			Belt_Conveyor_M_2_Base => GVL.Belt_Conveyor_4m_13,
+			Belt_Conveyor_Box_1 => GVL.Belt_Conveyor_2m_21,	
+			Belt_Conveyor_Box_2 => GVL.Belt_Conveyor_Inclined_3,		
+			Emitter_Box => GVL.Emitter_7,
+			Palletizer_Belt_mas => GVL.Palletizer_3_Belt_mas,
+			Palletizer_Chain_mas => GVL.Palletizer_3_Chain_mas,
+			Palletizer_Clamp => GVL.Palletizer_3_Clamb,
+			Palletizer_Elevator_Move_Limit => GVL.Palletizer_3_Elevator_Move_Limit,
+			Palletizer_Elevator_Move_Mas => GVL.Palletizer_3_Elevator_mas,
+			Palletizer_Elevator_Move_Menos => GVL.Palletizer_3_Elevator_menos,
+			Palletizer_Open_Plate => GVL.Palletizer_3_Open_Plate,
+			Palletizer_Push => GVL.Palletizer_3_Push,
+			Palletizer_Turn => GVL.Palletizer_3_Turn,
+			Pivot_Arm => GVL.Pivot_Arm_Sorter_4_Turn,
+			RFID_Reader_Execute_Command => GVL.RFID_Reader_3_Ejecute_Comm,
+			Right_Positioner_1_Clamp => GVL.Right_Positioner_5_Clamp,
+			Right_Positioner_2_Clamp => GVL.Right_Positioner_6_Clamp,
+			Right_Positioner_2_Raise => GVL.Right_Positioner_6_Raise,
+			Roller_Conveyor_2m_1 => GVL.Roller_Conveyor_2m_7,
+			Two_Axis_Pick_Place_1X => GVL.Two_Axis_Pick_Place_3X,
+			Two_Axis_Pick_Place_1Z => GVL.Two_Axis_Pick_Place_3Z,
+			Two_Axis_Pick_Place_1_Grab => GVL.Two_Axis_Pick_Place_3_Grab);*)
+			
+		POU_Linea_Almacen();
+
+	END_IF
+]]></ST>
+    </Implementation>
+    <LineIds Name="POU_Funcionamiento">
+      <LineId Id="218" Count="0" />
+      <LineId Id="6" Count="0" />
+      <LineId Id="236" Count="0" />
+      <LineId Id="7" Count="0" />
+      <LineId Id="235" Count="0" />
+      <LineId Id="233" Count="1" />
+      <LineId Id="8" Count="198" />
+      <LineId Id="5" Count="0" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

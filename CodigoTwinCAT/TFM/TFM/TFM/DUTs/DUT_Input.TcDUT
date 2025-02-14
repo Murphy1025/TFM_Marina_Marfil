@@ -1,0 +1,19 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <DUT Name="DUT_Input" Id="{c94aef8e-3973-4493-ba99-9f7e7f1e4a05}">
+    <Declaration><![CDATA[TYPE DUT_Input :
+STRUCT
+	Max_Capas_Apiladas_Azul  : INT := 2; 	  // Cantidad de capas a apilar en el paletizador	
+	Max_Capas_Apiladas_Verde : INT := 2;	  // Cantidad de capas a apilar en el paletizador	
+	Max_Capas_Apiladas_Metal : INT := 2; 	  // Cantidad de capas a apilar en el paletizador
+	Descartar_Pieza_Azul 	 : BOOL := FALSE; // Control de ingreso de material a la línea Azul
+	Descartar_Pieza_Verde  	 : BOOL := FALSE; // Control de ingreso de material a la línea Verde
+	Descartar_Pieza_Metal 	 : BOOL := FALSE; // Control de ingreso de material a la línea Metal
+END_STRUCT
+END_TYPE
+
+
+
+]]></Declaration>
+  </DUT>
+</TcPlcObject>

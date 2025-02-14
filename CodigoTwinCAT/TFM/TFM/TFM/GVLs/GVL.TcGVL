@@ -1,0 +1,1160 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <GVL Name="GVL" Id="{ba525da6-88b2-45c7-ac42-8d4d192f1831}">
+    <Declaration><![CDATA[//{attribute 'qualified_only'}
+VAR_GLOBAL
+
+// LOCAL
+	
+	Manual : BOOL := FALSE; // Control modo manual/automático
+	Marcha : BOOL := FALSE; // Control modo de operación de la planta
+	
+	//CONTADORES TOTALES PARA BASE DE DATOS
+	
+	Contador_Totales_Azul_Separadas 	 : INT := 0;  // Piezas totales azules pasadas a la linea de produccion
+	Contador_Totales_Verde_Separadas 	 : INT := 0;  // Piezas totales verdes pasadas a la linea de producción
+	Contador_Totales_Metal_Separadas 	 : INT := 0;  // Piezas totales metalicas pasadas a la linea de producción
+	Contador_Piezas_Totales_Emitidas 	 : INT := 0;  // Piezas totales emitidas por el emisor
+	Contador_Piezas_Totales_Descartadas  : INT := 0;  // Piezas totales descartadas
+	Contador_Palets_Azules_Totales  	 : INT := 0;  // Palets de productos azules completados
+	Contador_Palets_Verdes_Totales  	 : INT := 0;  // Palets de productos verdes completados
+	Contador_Palets_Metales_Totales 	 : INT := 0;  // Palets de productos metales completados
+	Pallets_Almacenados 				 : DINT := 0; // Cantidad de palets almacenados sin contar los extraidos
+	Pallets_Almacenados_Retirados		 : DINT := 0; // Totalidad de palets extraidos
+	Pallets_Azules_Totales_Emitidos  	 : DINT := 0; // Cantidad de palets emitidos para ser "rellenados", esta variable se usa para controlar los errores del RFID		
+	Pallets_Verdes_Totales_Emitidos   	 : DINT := 0; // Cantidad de palets emitidos para ser "rellenados", esta variable se usa para controlar los errores del RFID	
+	Pallets_Metalicos_Totales_Emitidos   : DINT := 0; // Cantidad de palets emitidos para ser "rellenados", esta variable se usa para controlar los errores del RFID	
+	
+	// CONTADORES-FLAGS PARA CONTROL DE LINEA	
+
+	//Contador_Piezas_No_Descartadas : INT := 0; // Piezas utilizables emitidas por el emitter 1,
+	Capas_Apiladas_Azul					 : INT := 0;  // Capas de cajas de producto azul apiladas en el palet
+	Capas_Apiladas_Metal				 : INT := 0;  // Capas de cajas de producto verde apiladas en el palet
+	Capas_Apiladas_Verde				 : INT := 0;  // Capas de cajas de producto metálico apiladas en el palet
+	Contador_Piezas_Zona_Pivot_Principal : INT := 0;  // Piezas en la zona Pivot y descarte
+	Contador_Pivot_Azul 				 : INT := 0;  // Piezas en la zona Pivot de la linea azul
+	Contador_Pivot_Verde 				 : INT := 0;  // Piezas en la zona Pivot de la linea verde
+	Contador_Pivot_Metal 				 : INT := 0;  // Piezas en la zona Pivot de la linea metal
+	Contador_Manipulador_1 				 : INT := 0;  // Piezas que hay dentro de la celda del robot
+	Contador_Manipulador_2				 : INT := 0;  // Piezas que hay dentro de la celda del robot
+	Contador_Manipulador_3				 : INT := 0;  // Piezas que hay dentro de la celda del robot
+	Contador_Manipulador_4				 : INT := 0;  // Piezas que hay dentro de la celda del robot
+	Contador_Manipulador_5				 : INT := 0;  // Piezas que hay dentro de la celda del robot
+	Contador_Manipulador_6				 : INT := 0;  // Piezas que hay dentro de la celda del robot
+	Contador_Linea_Manipulador_1_I		 : INT := 0;  // Piezas que hay en la cinta de entrada al manipulador
+	Contador_Linea_Manipulador_2_I		 : INT := 0;  // Piezas que hay en la cinta de entrada al manipulador
+	Contador_Linea_Manipulador_3_I		 : INT := 0;  // Piezas que hay en la cinta de entrada al manipulador	
+	Contador_Linea_Manipulador_4_I		 : INT := 0;  // Piezas que hay en la cinta de entrada al manipulador	
+	Contador_Linea_Manipulador_5_I		 : INT := 0;  // Piezas que hay en la cinta de entrada al manipulador
+	Contador_Linea_Manipulador_6_I		 : INT := 0;  // Piezas que hay en la cinta de entrada al manipulador	
+	Contador_Linea_Principal			 : INT := 0;  // Elementos en la línea principal de entrada tras el sensor de visión
+	Contador_Manipulador_1_Lid			 : INT := 0;  // Piezas que hay en la cinta de salida del manipulador	
+	Contador_Manipulador_2_Lid			 : INT := 0;  // Piezas que hay en la cinta de salida del manipulador	
+	Contador_Manipulador_3_Lid			 : INT := 0;  // Piezas que hay en la cinta de salida del manipulador
+	Contador_Manipulador_1_Base			 : INT := 0;  // Piezas que hay en la cinta de salida del manipulador
+	Contador_Manipulador_2_Base			 : INT := 0;  // Piezas que hay en la cinta de salida del manipulador
+	Contador_Manipulador_3_Base 		 : INT := 0;  // Piezas que hay en la cinta de salida del manipulador
+	Contador_Box_Azul					 : INT := 0;  // Cajas de producto azul entrando al paletizado
+	Contador_Box_Verde					 : INT := 0;  // Cajas de producto verde entrando al paletizado
+	Contador_Box_Metal 					 : INT := 0;  // Cajas de producto metálico entrando al paletizado
+	Contador_Palets_Azules   			 : INT := 0;  // Palets de producto azul en el primer tramo de rodillos	
+	Contador_Palets_Verdes				 : INT := 0;  // Palets de producto verde en el primer tramo de rodillos	
+	Contador_Palets_Metal				 : INT := 0;  // Palets de producto metálico en el primer tramo de rodillos
+	Contador_Linea_Cruce_1				 : INT := 0;  // Palets que hay entre los dos cruces de rodillos
+	Contador_Linea_Cruce_2				 : INT := 0;  // Palets entre el último cruce y el almacen	
+	Linea_Salida_Libre_2				 : BOOL := TRUE; // Control de cinta de salida para el paletizado de laínea verde, si la línea de salida no está libre, no puede sacar el palet
+	Linea_Salida_Libre_3				 : BOOL := TRUE; // Control de cinta de salida para el paletizado de la línea metálica, si la línea de salida no está libre, no puede sacar el palet
+
+	// VARIABLES PARA CONTROLAR ACCIONES	
+	
+	Sacar_Palet_1 			: BOOL := FALSE; // Para saber si el palet de producto azul del paletizador tiene via libre para ser pasado a los rodillos camino al almacen
+	Sacar_Palet_2 			: BOOL := FALSE; // Para saber si el palet de producto verde del paletizador tiene via libre para ser pasado a los rodillos camino al almacen
+	Sacar_Palet_3			: BOOL := FALSE; // Para saber si el palet de producto metálico  paletizador tiene via libre para ser pasado a los rodillos camino al almacen
+	Error_RFID_1 			: BOOL := FALSE; // Variable que guarda si ha habido error a la hora de escribir información en un palet en la línea azul	
+	Error_RFID_2 			: BOOL := FALSE; // Variable que guarda si ha habido error a la hora de escribir información en un palet en la línea verde
+	Error_RFID_3 			: BOOL := FALSE; // Variable que guarda si ha habido error a la hora de escribir información en un palet en la línea metálica
+	Error_RFID_Almacen 		: BOOL := FALSE; // Variable que guarda si ha habido error a la hora de leer información en un palet a almacenar
+	Control_TAPP_A 			: BOOL := FALSE; // En base a la botonera de control y los sensores de puerta, se permite el movimiento o no del Pick&Place de la línea azul
+	Control_TAPP_V 			: BOOL := FALSE; // En base a la botonera de control y los sensores de puerta, se permite el movimiento o no del Pick&Place de la línea verde
+	Control_TAPP_M 			: BOOL := FALSE; // En base a la botonera de control y los sensores de puerta, se permite el movimiento o no del Pick&Place de la línea metálica
+	Control_Paletizador_A 	: BOOL := FALSE; // En base a la botonera de control y los sensores de puerta, se permite el movimiento o no del paletizador de la línea azul
+	Control_Paletizador_V 	: BOOL := FALSE; // En base a la botonera de control y los sensores de puerta, se permite el movimiento o no del paletizador de la línea verde
+	Control_Paletizador_M 	: BOOL := FALSE; // En base a la botonera de control y los sensores de puerta, se permite el movimiento o no del paletizador de la línea metálica
+	Control_Almacen 		: BOOL := FALSE; // En base a la botonera de control y los sensores de puerta, se permite el movimiento o no de la grúa del alamcén
+	Reset					: BOOL := FALSE; // Variable para resetear los contadores
+	
+	//ESTADOS	
+	Estado_Pick_Place_1 	: INT  := 0; // Estado del Pick&Place de la línea azul
+	Estado_Palletizer_1 	: INT  := 0; // Estado del Pick&Place de la línea verde
+	Estado_Pick_Place_2 	: INT  := 0; // Estado del Pick&Place de la línea metálica
+	Estado_Palletizer_2 	: INT  := 0; // Estado del paletizador de la línea azul
+	Estado_Pick_Place_3 	: INT  := 0; // Estado del paletizador de la línea verde
+	Estado_Palletizer_3 	: INT  := 0; // Estado del paletizador de la línea metálica	
+	Estado_Almacen_I 		: INT  := 0; // Estado de la grúa en modo almacenamiento
+	Estado_Almacen_O 		: INT  := 1; // Estado de la grúa en modo extracción
+	
+	// ALMACEN
+	
+	ContadorPalets			: INT := 0; 							// Contador de palets del Almacen en base a la selección del display
+	Retirada_Start			: BOOL := FALSE; 						// Guarda la pulsación del botón start para extraer del almacen
+	Clasificados 			: ARRAY[0..53] OF DUT_Guardado_Almacen; // Estanteria: 0 (posicion libre), 1 (id blue raw material), 4 (id green raw material), 7 (id metal raw material)
+	Input					: ARRAY[0..0] OF DUT_Input; 			// Variables de entrada para controlar la funcionalidad del flujo.
+
+// --------------------------- ENTRADAS ---------------------------
+
+// Etapa Entrada 
+
+	{attribute 'OPC.UA.DA' := '1'}
+	Diffuse_Sensor_0 AT %I* : BOOL;
+	{attribute 'OPC.UA.DA' := '1'}
+	Diffuse_Sensor_1 AT %I* : BOOL;
+	{attribute 'OPC.UA.DA' := '1'} 
+	Diffuse_Sensor_2 AT %I* : BOOL;
+	{attribute 'OPC.UA.DA' := '1'} 
+	Diffuse_Sensor_3 AT %I* : BOOL;
+	{attribute 'OPC.UA.DA' := '1'} 
+	Diffuse_Sensor_4 AT %I* : BOOL;
+	{attribute 'OPC.UA.DA' := '1'} 
+	Diffuse_Sensor_5 AT %I* : BOOL;
+	{attribute 'OPC.UA.DA' := '1'} 
+	Diffuse_Sensor_8 AT %I* : BOOL;
+	{attribute 'OPC.UA.DA' := '1'} 
+	Diffuse_Sensor_9 AT %I* : BOOL;
+	{attribute 'OPC.UA.DA' := '1'} 
+	Diffuse_Sensor_12 AT %I* : BOOL;
+	{attribute 'OPC.UA.DA' := '1'} 
+	Emergency_Stop_2 AT %I* : BOOL;
+	{attribute 'OPC.UA.DA' := '1'} 	
+	Pusher_1_Front_Limit AT %I* : BOOL;
+	{attribute 'OPC.UA.DA' := '1'} 
+	Pusher_2_Front_Limit AT %I* : BOOL;
+	{attribute 'OPC.UA.DA' := '1'} 
+	Pusher_3_Front_Limit AT %I* : BOOL;	
+	{attribute 'OPC.UA.DA' := '1'} 
+	Reset_Button_2: BOOL;
+	{attribute 'OPC.UA.DA' := '1'} 
+	Start_Button_2 AT %I* : BOOL;
+	{attribute 'OPC.UA.DA' := '1'} 
+	Stop_Button_2 AT %I* : BOOL;
+	
+
+// Linea Producción 1 
+	
+	{attribute 'OPC.UA.DA' := '1'} 
+	Diffuse_Sensor_15 AT %I* : BOOL;
+	{attribute 'OPC.UA.DA' := '1'} 
+	Diffuse_Sensor_16 AT %I* : BOOL;	
+	{attribute 'OPC.UA.DA' := '1'} 
+	Diffuse_Sensor_45 AT %I* : BOOL;
+	{attribute 'OPC.UA.DA' := '1'} 
+	Diffuse_Sensor_46 AT %I* : BOOL;
+	{attribute 'OPC.UA.DA' := '1'} 
+	Emergency_Stop_3 AT %I* : BOOL;
+	{attribute 'OPC.UA.DA' := '1'}
+	Emergency_Stop_4 AT %I* : BOOL;
+	//{attribute 'OPC.UA.DA' := '1'} 
+	Reset_Button_3 AT %I* : BOOL;
+	//{attribute 'OPC.UA.DA' := '1'} 
+	Reset_Button_4 AT %I* : BOOL;	
+	//{attribute 'OPC.UA.DA' := '1'} 
+	Safety_Door_1 AT %I* : BOOL;
+	//{attribute 'OPC.UA.DA' := '1'} 
+	Safety_Door_2 AT %I* : BOOL;
+	//{attribute 'OPC.UA.DA' := '1'} 
+	Safety_Door_3 AT %I* : BOOL;
+	//{attribute 'OPC.UA.DA' := '1'} 
+	Safety_Door_4 AT %I* : BOOL;
+	//{attribute 'OPC.UA.DA' := '1'} 
+	Start_Button_3 AT %I* : BOOL;
+	//{attribute 'OPC.UA.DA' := '1'} 
+	Stop_Button_3 AT %I* : BOOL;
+	//{attribute 'OPC.UA.DA' := '1'} //Comentar
+	Start_Button_6 AT %I* : BOOL;
+	//{attribute 'OPC.UA.DA' := '1'} //Comentar
+	Stop_Button_6 AT %I* : BOOL;
+	
+	
+	//Función
+	
+	{attribute 'OPC.UA.DA' := '1'} 
+	Diffuse_Sensor_6 AT %I* : BOOL;
+	{attribute 'OPC.UA.DA' := '1'} 
+	Diffuse_Sensor_7 AT %I* : BOOL;
+	{attribute 'OPC.UA.DA' := '1'} 
+	Diffuse_Sensor_17 AT %I* : BOOL;	
+	{attribute 'OPC.UA.DA' := '1'} 
+	Diffuse_Sensor_18 AT %I* : BOOL;	
+	{attribute 'OPC.UA.DA' := '1'} 
+	Diffuse_Sensor_19 AT %I* : BOOL;	
+	{attribute 'OPC.UA.DA' := '1'} 
+	Diffuse_Sensor_20 AT %I* : BOOL;
+	{attribute 'OPC.UA.DA' := '1'} 
+	Diffuse_Sensor_21 AT %I* : BOOL;
+	{attribute 'OPC.UA.DA' := '1'} 
+	Diffuse_Sensor_22 AT %I* : BOOL;
+	{attribute 'OPC.UA.DA' := '1'}  // Comentar
+	Palletizer_1_Clamped AT %I* : BOOL;	
+	{attribute 'OPC.UA.DA' := '1'}  // Comentar
+	Palletizer_1_Plate_Limit AT %I* : BOOL;	
+	{attribute 'OPC.UA.DA' := '1'}  // Comentar
+	Palletizer_1_Pusher_Limit AT %I* : BOOL;
+	{attribute 'OPC.UA.DA' := '1'}  // Comentar
+	Palletizer_1_Elevator_Back_Limit AT %I* : BOOL;	
+	{attribute 'OPC.UA.DA' := '1'}  // Comentar
+	Palletizer_1_Elevator_Front_Limit AT %I* : BOOL;	
+	{attribute 'OPC.UA.DA' := '1'}  // Comentar
+	Palletizer_1_Elevator_Moving AT %I* : BOOL;	
+	{attribute 'OPC.UA.DA' := '1'}  // Comentar
+	RFID_Reader_1_Status AT %I* : DINT;	
+	{attribute 'OPC.UA.DA' := '1'}  // Comentar
+	RFID_Reader_1_Command_ID AT %I* : DINT;	
+	//{attribute 'OPC.UA.DA' := '1'} 
+	Right_Positioner_1_Clamped AT %I* : BOOL;
+	{attribute 'OPC.UA.DA' := '1'}  // Comentar
+	Right_Positioner_2_Clamped AT %I* : BOOL;
+	{attribute 'OPC.UA.DA' := '1'}  // Comentar
+	Right_Positioner_2_Limit AT %I* : BOOL;	
+	{attribute 'OPC.UA.DA' := '1'}  // Comentar
+	Two_Axis_Pick_Place_1_Detected AT %I* : BOOL;	
+	{attribute 'OPC.UA.DA' := '1'}  // Comentar
+	Two_Axis_Pick_Place_1_MovingX AT %I* : BOOL;
+	{attribute 'OPC.UA.DA' := '1'}  // Comentar
+	Two_Axis_Pick_Place_1_MovingZ AT %I* : BOOL;
+	
+	
+// Línea Producción 2	
+	
+	{attribute 'OPC.UA.DA' := '1'} 
+	Diffuse_Sensor_23 AT %I* : BOOL;
+	{attribute 'OPC.UA.DA' := '1'} 
+	Diffuse_Sensor_24 AT %I* : BOOL;
+	{attribute 'OPC.UA.DA' := '1'} 
+	Diffuse_Sensor_47 AT %I* : BOOL;
+	{attribute 'OPC.UA.DA' := '1'} 
+	Diffuse_Sensor_48 AT %I* : BOOL;
+	{attribute 'OPC.UA.DA' := '1'}
+	Emergency_Stop_5 AT %I* : BOOL;
+	{attribute 'OPC.UA.DA' := '1'}
+	Emergency_Stop_6 AT %I* : BOOL;
+	//{attribute 'OPC.UA.DA' := '1'} 
+	Reset_Button_5 AT %I* : BOOL;
+	{attribute 'OPC.UA.DA' := '1'} 
+	Reset_Button_6 AT %I* : BOOL;
+	//{attribute 'OPC.UA.DA' := '1'} //Comentar
+	Safety_Door_5 AT %I* : BOOL;
+	//{attribute 'OPC.UA.DA' := '1'} //Comentar
+	Safety_Door_6 AT %I* : BOOL;
+	//{attribute 'OPC.UA.DA' := '1'} //Comentar
+	Safety_Door_7 AT %I* : BOOL;
+	//{attribute 'OPC.UA.DA' := '1'} //Comentar
+	Safety_Door_8 AT %I* : BOOL;
+	//{attribute 'OPC.UA.DA' := '1'} 
+	Start_Button_4 AT %I* : BOOL;
+	//{attribute 'OPC.UA.DA' := '1'} 
+	Stop_Button_4 AT %I* : BOOL;
+	//{attribute 'OPC.UA.DA' := '1'} //Comentar
+	Start_Button_7 AT %I* : BOOL;
+	//{attribute 'OPC.UA.DA' := '1'} //Comentar
+	Stop_Button_7 AT %I* : BOOL;
+	
+	
+	//Función
+	
+	{attribute 'OPC.UA.DA' := '1'} 
+	Diffuse_Sensor_10 AT %I* : BOOL;
+	{attribute 'OPC.UA.DA' := '1'} 
+	Diffuse_Sensor_11 AT %I* : BOOL;
+	{attribute 'OPC.UA.DA' := '1'} 
+	Diffuse_Sensor_25 AT %I* : BOOL;
+	{attribute 'OPC.UA.DA' := '1'} 
+	Diffuse_Sensor_26 AT %I* : BOOL;
+	{attribute 'OPC.UA.DA' := '1'} 
+	Diffuse_Sensor_27 AT %I* : BOOL;
+	{attribute 'OPC.UA.DA' := '1'} 
+	Diffuse_Sensor_28 AT %I* : BOOL;
+	{attribute 'OPC.UA.DA' := '1'} 
+	Diffuse_Sensor_29 AT %I* : BOOL;
+	{attribute 'OPC.UA.DA' := '1'} 
+	Diffuse_Sensor_30 AT %I* : BOOL;
+	//{attribute 'OPC.UA.DA' := '1'} // Comentar
+	Palletizer_2_Clamped AT %I* : BOOL;	
+	//{attribute 'OPC.UA.DA' := '1'}  // Comentar
+	Palletizer_2_Plate_Limit AT %I* : BOOL;	
+	//{attribute 'OPC.UA.DA' := '1'}  // Comentar
+	Palletizer_2_Pusher_Limit AT %I* : BOOL;
+	//{attribute 'OPC.UA.DA' := '1'}  // Comentar
+	Palletizer_2_Elevator_Back_Limit AT %I* : BOOL;	
+	//{attribute 'OPC.UA.DA' := '1'}  // Comentar
+	Palletizer_2_Elevator_Front_Limit AT %I* : BOOL;	
+	//{attribute 'OPC.UA.DA' := '1'}  // Comentar
+	Palletizer_2_Elevator_Moving AT %I* : BOOL;
+	//{attribute 'OPC.UA.DA' := '1'}  // Comentar
+	RFID_Reader_2_Status AT %I* : DINT;	
+	//{attribute 'OPC.UA.DA' := '1'}
+	RFID_Reader_2_Command_ID AT %I* : DINT;
+	//{attribute 'OPC.UA.DA' := '1'}  // Comentar
+	Right_Positioner_3_Clamped AT %I* : BOOL;	
+	//{attribute 'OPC.UA.DA' := '1'}  // Comentar
+	Right_Positioner_4_Clamped AT %I* : BOOL;
+	//{attribute 'OPC.UA.DA' := '1'}  // Comentar
+	Right_Positioner_4_Limit AT %I* : BOOL;
+	//{attribute 'OPC.UA.DA' := '1'}  // Comentar
+	Two_Axis_Pick_Place_2_Detected AT %I* : BOOL;
+	//{attribute 'OPC.UA.DA' := '1'}  // Comentar
+	Two_Axis_Pick_Place_2_MovingX AT %I* : BOOL;
+	//{attribute 'OPC.UA.DA' := '1'}  // Comentar
+	Two_Axis_Pick_Place_2_MovingZ AT %I* : BOOL;
+	
+
+// Línea Producción 3
+
+	{attribute 'OPC.UA.DA' := '1'} 
+	Diffuse_Sensor_31 AT %I* : BOOL;
+	{attribute 'OPC.UA.DA' := '1'} 
+	Diffuse_Sensor_32 AT %I* : BOOL;
+	{attribute 'OPC.UA.DA' := '1'} 
+	Diffuse_Sensor_49 AT %I* : BOOL;
+	{attribute 'OPC.UA.DA' := '1'} 
+	Diffuse_Sensor_50 AT %I* : BOOL;	
+	{attribute 'OPC.UA.DA' := '1'}
+	Emergency_Stop_7 AT %I* : BOOL;
+	{attribute 'OPC.UA.DA' := '1'}
+	Emergency_Stop_8 AT %I* : BOOL;
+	//{attribute 'OPC.UA.DA' := '1'} 
+	Reset_Button_7 AT %I* : BOOL;
+	//{attribute 'OPC.UA.DA' := '1'} 
+	Reset_Button_8 AT %I* : BOOL;
+	//{attribute 'OPC.UA.DA' := '1'} //Comentar
+	Safety_Door_9 AT %I* : BOOL;
+	//{attribute 'OPC.UA.DA' := '1'} //Comentar
+	Safety_Door_10 AT %I* : BOOL;
+	//{attribute 'OPC.UA.DA' := '1'} //Comentar
+	Safety_Door_11 AT %I* : BOOL;
+	//{attribute 'OPC.UA.DA' := '1'} //Comentar
+	Safety_Door_12 AT %I* : BOOL;
+	//{attribute 'OPC.UA.DA' := '1'} //Comentar
+	Start_Button_5 AT %I* : BOOL;
+	//{attribute 'OPC.UA.DA' := '1'} //Comentar
+	Stop_Button_5 AT %I* : BOOL;
+	//{attribute 'OPC.UA.DA' := '1'} //Comentar
+	Start_Button_8 AT %I* : BOOL;
+	//{attribute 'OPC.UA.DA' := '1'} //Comentar
+	Stop_Button_8 AT %I* : BOOL;
+	
+	
+	//Función
+	
+	{attribute 'OPC.UA.DA' := '1'} 
+	Diffuse_Sensor_13 AT %I* : BOOL;
+	{attribute 'OPC.UA.DA' := '1'} 
+	Diffuse_Sensor_14 AT %I* : BOOL;
+	{attribute 'OPC.UA.DA' := '1'} 
+	Diffuse_Sensor_33 AT %I* : BOOL;
+	{attribute 'OPC.UA.DA' := '1'} 
+	Diffuse_Sensor_34 AT %I* : BOOL;
+	{attribute 'OPC.UA.DA' := '1'} 
+	Diffuse_Sensor_35 AT %I* : BOOL;
+	{attribute 'OPC.UA.DA' := '1'} 
+	Diffuse_Sensor_36 AT %I* : BOOL;
+	{attribute 'OPC.UA.DA' := '1'} 
+	Diffuse_Sensor_37 AT %I* : BOOL;
+	{attribute 'OPC.UA.DA' := '1'} 
+	Diffuse_Sensor_38 AT %I* : BOOL;
+	//{attribute 'OPC.UA.DA' := '1'}  // Comentar
+	Palletizer_3_Clamped AT %I* : BOOL;	
+	//{attribute 'OPC.UA.DA' := '1'}  // Comentar
+	Palletizer_3_Plate_Limit AT %I* : BOOL;
+	//{attribute 'OPC.UA.DA' := '1'}  // Comentar
+	Palletizer_3_Pusher_Limit AT %I* : BOOL;
+	//{attribute 'OPC.UA.DA' := '1'}  // Comentar
+	Palletizer_3_Elevator_Back_Limit AT %I* : BOOL;
+	//{attribute 'OPC.UA.DA' := '1'}  // Comentar
+	Palletizer_3_Elevator_Front_Limit AT %I* : BOOL;
+	//{attribute 'OPC.UA.DA' := '1'}  // Comentar
+	Palletizer_3_Elevator_Moving AT %I* : BOOL;	
+	//{attribute 'OPC.UA.DA' := '1'}  // Comentar
+	RFID_Reader_3_Status AT %I* : DINT;	
+	//{attribute 'OPC.UA.DA' := '1'}  // Comentar
+	RFID_Reader_3_Command_ID AT %I* : DINT;	
+	//{attribute 'OPC.UA.DA' := '1'}  // Comentar
+	Right_Positioner_5_Clamped AT %I* : BOOL;
+	//{attribute 'OPC.UA.DA' := '1'}  // Comentar
+	Right_Positioner_6_Clamped AT %I* : BOOL;
+	//{attribute 'OPC.UA.DA' := '1'}  // Comentar
+	Right_Positioner_6_Limit AT %I* : BOOL;
+	//{attribute 'OPC.UA.DA' := '1'}  // Comentar
+	Two_Axis_Pick_Place_3_Detected AT %I* : BOOL;
+	//{attribute 'OPC.UA.DA' := '1'}  // Comentar
+	Two_Axis_Pick_Place_3_MovingX AT %I* : BOOL;
+	//{attribute 'OPC.UA.DA' := '1'}  // Comentar
+	Two_Axis_Pick_Place_3_MovingZ AT %I* : BOOL;
+	
+	
+//Línea Almacén
+	
+	{attribute 'OPC.UA.DA' := '1'} 
+	Diffuse_Sensor_39 AT %I* : BOOL;
+	{attribute 'OPC.UA.DA' := '1'} 
+	Diffuse_Sensor_40 AT %I* : BOOL;
+	{attribute 'OPC.UA.DA' := '1'} 
+	Diffuse_Sensor_41 AT %I* : BOOL;
+	{attribute 'OPC.UA.DA' := '1'} 
+	Diffuse_Sensor_42 AT %I* : BOOL;
+	{attribute 'OPC.UA.DA' := '1'} 
+	Diffuse_Sensor_43 AT %I* : BOOL;
+	{attribute 'OPC.UA.DA' := '1'} 
+	Diffuse_Sensor_44 AT %I* : BOOL;
+	{attribute 'OPC.UA.DA' := '1'} 
+	Emergency_Stop_1 AT %I* : BOOL;
+	{attribute 'OPC.UA.DA' := '1'}
+	Emergency_Stop_9 AT %I* : BOOL;
+	{attribute 'OPC.UA.DA' := '1'} 
+	Stacker_Crane_1_Left_Limit AT %I* : BOOL;	
+	{attribute 'OPC.UA.DA' := '1'} 
+	Stacker_Crane_1_Middle_Limit AT %I* : BOOL;
+	{attribute 'OPC.UA.DA' := '1'} 
+	Stacker_Crane_1_Moving_X AT %I* : BOOL;
+	{attribute 'OPC.UA.DA' := '1'} 
+	Stacker_Crane_1_Moving_Z AT %I* : BOOL;
+	{attribute 'OPC.UA.DA' := '1'} 
+	Stacker_Crane_1_Right_Limit AT %I* : BOOL;
+	{attribute 'OPC.UA.DA' := '1'} 
+	Turnable_1_Back_Limit AT %I* : BOOL;
+	{attribute 'OPC.UA.DA' := '1'} 
+	Turnable_1_Limit_0 AT %I* : BOOL;
+	{attribute 'OPC.UA.DA' := '1'} 
+	Turnable_1_Limit_90 AT %I* : BOOL;
+	{attribute 'OPC.UA.DA' := '1'} 
+	Turnable_2_Back_Limit AT %I* : BOOL;
+	{attribute 'OPC.UA.DA' := '1'} 
+	Turnable_2_Limit_0 AT %I* : BOOL;
+	{attribute 'OPC.UA.DA' := '1'} 
+	Turnable_2_Limit_90 AT %I* : BOOL;		
+	{attribute 'OPC.UA.DA' := '1'} 
+	Vision_Sensor_1 AT %I* : DINT;
+	{attribute 'OPC.UA.DA' := '1'} 
+	Reset_Button_1 AT %I* : BOOL;
+	//{attribute 'OPC.UA.DA' := '1'} 
+	Reset_Button_9 AT %I* : BOOL;
+	{attribute 'OPC.UA.DA' := '1'} 
+	Retroreflective_Sensor_1 AT %I* : BOOL;	
+	{attribute 'OPC.UA.DA' := '1'} 
+	Retroreflective_Sensor_2 AT %I* : BOOL;		
+	{attribute 'OPC.UA.DA' := '1'} 
+	RFID_Reader_4_Read_Data AT %I* : DINT := 1;				
+	{attribute 'OPC.UA.DA' := '1'} 
+	RFID_Reader_4_Status AT %I* : DINT;		
+	{attribute 'OPC.UA.DA' := '1'} 
+	RFID_Reader_4_Command_ID AT %I* : DINT;
+	{attribute 'OPC.UA.DA' := '1'} 
+	Safety_Door_13 AT %I* : BOOL;
+	{attribute 'OPC.UA.DA' := '1'} 
+	Safety_Door_14 AT %I* : BOOL;
+	{attribute 'OPC.UA.DA' := '1'} 
+	Safety_Door_15 AT %I* : BOOL;
+	{attribute 'OPC.UA.DA' := '1'} 
+	Start_Button_1 AT %I* : BOOL;
+	{attribute 'OPC.UA.DA' := '1'} 
+	Stop_Button_1 AT %I* : BOOL;
+	{attribute 'OPC.UA.DA' := '1'} //Comentar
+	Start_Button_9 AT %I* : BOOL;
+	{attribute 'OPC.UA.DA' := '1'} //Comentar
+	Stop_Button_9 AT %I* : BOOL;
+	{attribute 'OPC.UA.DA' := '1'} 
+	Selector1_State_1 AT %I* : BOOL;
+	{attribute 'OPC.UA.DA' := '1'} 
+	Selector1_State_2 AT %I* : BOOL;
+	//{attribute 'OPC.UA.DA' := '1'} 
+	Turnable_1_Front_Limit AT %I* : BOOL;
+	//{attribute 'OPC.UA.DA' := '1'} 
+	Turnable_2_Front_Limit AT %I* : BOOL;
+
+	
+//Exclusivo HMI
+
+	//{attribute 'OPC.UA.DA' := '1'} 
+	Machining_Center_1_IsBusy AT %I* : BOOL;
+	//{attribute 'OPC.UA.DA' := '1'} 
+	Machining_Center_1_Error AT %I* : BOOL;
+	//{attribute 'OPC.UA.DA' := '1'} 
+	Machining_Center_1_Opened AT %I* : BOOL;
+	//{attribute 'OPC.UA.DA' := '1'} 
+	Machining_Center_1_Progress AT %I* : REAL;
+	//{attribute 'OPC.UA.DA' := '1'} 
+	Machining_Center_2_IsBusy AT %I* : BOOL;
+	//{attribute 'OPC.UA.DA' := '1'} 
+	Machining_Center_2_Error AT %I* : BOOL;
+	//{attribute 'OPC.UA.DA' := '1'} 
+	Machining_Center_2_Opened AT %I* : BOOL;
+	//{attribute 'OPC.UA.DA' := '1'} 
+	Machining_Center_2_Progress AT %I* : REAL;	
+	// {attribute 'OPC.UA.DA' := '1'
+	Machining_Center_3_IsBusy AT %I* : BOOL;
+	// {attribute 'OPC.UA.DA' := '1'}
+	Machining_Center_3_Error AT %I* : BOOL;
+	// {attribute 'OPC.UA.DA' := '1'} 
+	Machining_Center_3_Opened AT %I* : BOOL;
+	// {attribute 'OPC.UA.DA' := '1'}
+	Machining_Center_3_Progress AT %I* : REAL;
+	// {attribute 'OPC.UA.DA' := '1'}
+	Machining_Center_4_IsBusy AT %I* : BOOL;
+	// {attribute 'OPC.UA.DA' := '1'}
+	Machining_Center_4_Error AT %I* : BOOL;
+	// {attribute 'OPC.UA.DA' := '1'}
+	Machining_Center_4_Opened AT %I* : BOOL;
+	// {attribute 'OPC.UA.DA' := '1'}
+	Machining_Center_4_Progress AT %I* : REAL;
+	// {attribute 'OPC.UA.DA' := '1'}  
+	Machining_Center_5_IsBusy AT %I* : BOOL;
+	// {attribute 'OPC.UA.DA' := '1'}  
+	Machining_Center_5_Error AT %I* : BOOL;
+	// {attribute 'OPC.UA.DA' := '1'}  
+	Machining_Center_5_Opened AT %I* : BOOL;
+	// {attribute 'OPC.UA.DA' := '1'}  
+	Machining_Center_5_Progress AT %I* : REAL;
+	// {attribute 'OPC.UA.DA' := '1'}  
+	Machining_Center_6_IsBusy AT %I* : BOOL;
+	// {attribute 'OPC.UA.DA' := '1'}  
+	Machining_Center_6_Error AT %I* : BOOL;
+	// {attribute 'OPC.UA.DA' := '1'}  
+	Machining_Center_6_Opened AT %I* : BOOL;
+	// {attribute 'OPC.UA.DA' := '1'} 
+	Machining_Center_6_Progress AT %I* : REAL;
+	//{attribute 'OPC.UA.DA' := '1'} 	
+	Pusher_1_Back_Limit AT %I* : BOOL;
+	//{attribute 'OPC.UA.DA' := '1'} 
+	Pusher_2_Back_Limit AT %I* : BOOL;
+	//{attribute 'OPC.UA.DA' := '1'} 
+	Pusher_3_Back_Limit AT %I* : BOOL;	
+	//{attribute 'OPC.UA.DA' := '1'}  
+	RFID_Reader_1_Read_Data AT %I* : DINT;	
+	//{attribute 'OPC.UA.DA' := '1'}  
+	RFID_Reader_2_Read_Data  AT %I* : DINT;	
+	//{attribute 'OPC.UA.DA' := '1'}  
+	RFID_Reader_3_Read_Data  AT %I* : DINT;		
+	//{attribute 'OPC.UA.DA' := '1'}
+	Right_Positioner_1_Limit AT %I* : BOOL;	
+	//{attribute 'OPC.UA.DA' := '1'}
+	Right_Positioner_3_Limit AT %I* : BOOL;	
+	//{attribute 'OPC.UA.DA' := '1'}
+	Right_Positioner_5_Limit AT %I* : BOOL;
+	//{attribute 'OPC.UA.DA' := '1'} 
+	Two_Axis_Pick_Place_1_Gripper_Rotating AT %I* : BOOL;
+	//{attribute 'OPC.UA.DA' := '1'}
+	Two_Axis_Pick_Place_1_Rotating AT %I* : BOOL;
+	
+	
+			
+	
+	
+	
+
+// --------------------------- SALIDAS ---------------------------	
+
+	{attribute 'OPC.UA.DA' := '1'} 
+	Alarm_Siren AT %Q* : BOOL;
+	{attribute 'OPC.UA.DA' := '1'} 
+	Warning_Light AT %Q* : BOOL;
+	{attribute 'OPC.UA.DA' := '1'} 
+	Factory_IO_Pause AT %Q* : BOOL;
+	{attribute 'OPC.UA.DA' := '1'} 
+	Factory_IO_Reset AT %Q* : BOOL;
+	
+//Etapa Entrada
+
+	{attribute 'OPC.UA.DA' := '1'} 
+	Belt_Conveyor_2m_1 AT %Q* : DINT;		
+	{attribute 'OPC.UA.DA' := '1'} 
+	Belt_Conveyor_4m_1 AT %Q* : BOOL;
+	{attribute 'OPC.UA.DA' := '1'} 
+	Belt_Conveyor_6m_1 AT %Q* : BOOL;
+	{attribute 'OPC.UA.DA' := '1'} 
+	Belt_Conveyor_6m_4 AT %Q* : BOOL;
+	{attribute 'OPC.UA.DA' := '1'} 
+	Belt_Conveyor_6m_5 AT %Q* : BOOL;
+	{attribute 'OPC.UA.DA' := '1'} 
+	Emitter_1 AT %Q* : BOOL;
+	{attribute 'OPC.UA.DA' := '1'} 
+	Pivot_Arm_Sorter_1_Belt_mas AT %Q* : BOOL;
+	{attribute 'OPC.UA.DA' := '1'} 
+	Pivot_Arm_Sorter_1_Belt_menos AT %Q* : BOOL;
+	{attribute 'OPC.UA.DA' := '1'} 
+	Pusher_1 AT %Q* : BOOL;
+	{attribute 'OPC.UA.DA' := '1'} 
+	Pusher_2 AT %Q* : BOOL;
+	{attribute 'OPC.UA.DA' := '1'} 
+	Pusher_3 AT %Q* : BOOL;
+	//{attribute 'OPC.UA.DA' := '1'} 
+	Reset_Button_2_Light AT %Q* : BOOL;		
+	//{attribute 'OPC.UA.DA' := '1'} 
+	Start_Button_2_Light AT %Q* : BOOL;	
+	//{attribute 'OPC.UA.DA' := '1'} 
+	Stop_Button_2_Light AT %Q* : BOOL;
+	
+	
+//Línea Producción 1
+	
+	{attribute 'OPC.UA.DA' := '1'} 
+	Belt_Conveyor_2m_3 AT %Q* : BOOL;
+	{attribute 'OPC.UA.DA' := '1'} 
+	Belt_Conveyor_2m_4 AT %Q* : BOOL;
+	{attribute 'OPC.UA.DA' := '1'} 
+	Belt_Conveyor_2m_5 AT %Q* : BOOL;
+	{attribute 'OPC.UA.DA' := '1'} 
+	Belt_Conveyor_2m_6 AT %Q* : BOOL;	
+	{attribute 'OPC.UA.DA' := '1'} 
+	Belt_Conveyor_6m_2 AT %Q* : BOOL;
+	{attribute 'OPC.UA.DA' := '1'} 
+	Curved_Belt_Conveyor_1_CW AT %Q* : BOOL;
+	{attribute 'OPC.UA.DA' := '1'} 
+	Curved_Belt_Conveyor_1_CCW AT %Q* : BOOL;
+	{attribute 'OPC.UA.DA' := '1'}  // Comentar
+	Emitter_2 AT %Q* : BOOL := TRUE;
+	{attribute 'OPC.UA.DA' := '1'} 
+	Machining_Center_1_Produce_Lids AT %Q* : BOOL := TRUE;
+	//{attribute 'OPC.UA.DA' := '1'} 
+	Machining_Center_1_Start AT %Q* : BOOL;
+	//{attribute 'OPC.UA.DA' := '1'} 
+	Machine_Center_1_Stop  AT %Q* : BOOL ;	
+	//{attribute 'OPC.UA.DA' := '1'} 
+	Machine_Center_1_Reset  AT %Q* : BOOL ;
+	{attribute 'OPC.UA.DA' := '1'} 
+	Machining_Center_2_Produce_Lids AT %Q* : BOOL := FALSE;	
+	//{attribute 'OPC.UA.DA' := '1'} 
+	Machining_Center_2_Start AT %Q* : BOOL;
+	//{attribute 'OPC.UA.DA' := '1'} 
+	Machine_Center_2_Stop  AT %Q* : BOOL ;	
+	//{attribute 'OPC.UA.DA' := '1'} 
+	Machine_Center_2_Reset  AT %Q* : BOOL ;
+	{attribute 'OPC.UA.DA' := '1'} 
+	Pivot_Arm_Sorter_2_Belt_mas AT %Q* : BOOL;	
+	//{attribute 'OPC.UA.DA' := '1'} 
+	Reset_Button_3_Light AT %Q* : BOOL;	
+	//{attribute 'OPC.UA.DA' := '1'} 
+	Reset_Button_6_Light AT %Q* : BOOL;
+	{attribute 'OPC.UA.DA' := '1'} 
+	RFID_Reader_1_Command AT %Q* : DINT := 3;
+	{attribute 'OPC.UA.DA' := '1'} 
+	RFID_Reader_1_Write_Data AT %Q* : DINT := 1;	
+	{attribute 'OPC.UA.DA' := '1'} // Comentar
+	Stack_Light_1_Green AT %Q* : BOOL;	
+	{attribute 'OPC.UA.DA' := '1'} // Comentar
+	Stack_Light_2_Green AT %Q* : BOOL;
+	{attribute 'OPC.UA.DA' := '1'} // Comentar
+	Stack_Light_3_Green AT %Q* : BOOL;
+	{attribute 'OPC.UA.DA' := '1'} // Comentar
+	Stack_Light_4_Green AT %Q* : BOOL;	
+	{attribute 'OPC.UA.DA' := '1'} // Comentar
+	Stack_Light_1_Red AT %Q* : BOOL;	
+	{attribute 'OPC.UA.DA' := '1'} // Comentar
+	Stack_Light_2_Red AT %Q* : BOOL;
+	{attribute 'OPC.UA.DA' := '1'} // Comentar
+	Stack_Light_3_Red AT %Q* : BOOL;	
+	{attribute 'OPC.UA.DA' := '1'} // Comentar
+	Stack_Light_4_Red AT %Q* : BOOL;	
+	{attribute 'OPC.UA.DA' := '1'} // Comentar
+	Stack_Light_1_Yellow AT %Q* : BOOL;	
+	{attribute 'OPC.UA.DA' := '1'} // Comentar
+	Stack_Light_2_Yellow AT %Q* : BOOL;		
+	{attribute 'OPC.UA.DA' := '1'} // Comentar
+	Stack_Light_3_Yellow AT %Q* : BOOL;		
+	{attribute 'OPC.UA.DA' := '1'} // Comentar
+	Stack_Light_4_Yellow AT %Q* : BOOL;
+	//{attribute 'OPC.UA.DA' := '1'} //comentar
+	Start_Button_3_Light AT %Q* : BOOL;	
+	//{attribute 'OPC.UA.DA' := '1'} 
+	Start_Button_6_Light AT %Q* : BOOL;	
+	//{attribute 'OPC.UA.DA' := '1'} //comentar
+	Stop_Button_3_Light AT %Q* : BOOL;
+	//{attribute 'OPC.UA.DA' := '1'} 
+	Stop_Button_6_Light AT %Q* : BOOL;	
+	
+	
+	//Función
+	
+	{attribute 'OPC.UA.DA' := '1'} 
+	Belt_Conveyor_4m_4 AT %Q* : BOOL;
+	{attribute 'OPC.UA.DA' := '1'} 
+	Belt_Conveyor_4m_5 AT %Q* : BOOL;
+	{attribute 'OPC.UA.DA' := '1'} 
+	Belt_Conveyor_4m_6 AT %Q* : BOOL;
+	{attribute 'OPC.UA.DA' := '1'} 
+	Belt_Conveyor_4m_7 AT %Q* : BOOL;
+	{attribute 'OPC.UA.DA' := '1'} 
+	Belt_Conveyor_2m_13 AT %Q* : BOOL;	
+	{attribute 'OPC.UA.DA' := '1'} 
+	Belt_Conveyor_2m_14 AT %Q* : BOOL;	
+	{attribute 'OPC.UA.DA' := '1'} 
+	Belt_Conveyor_2m_15 AT %Q* : BOOL;	
+	{attribute 'OPC.UA.DA' := '1'}  // Comentar
+	Belt_Conveyor_Inclined_1 AT %Q* : BOOL;		
+	{attribute 'OPC.UA.DA' := '1'}  // Comentar
+	Emitter_5 AT %Q* : BOOL := FALSE;
+	{attribute 'OPC.UA.DA' := '1'}  // Comentar
+	Palletizer_1_Belt_mas AT %Q* : BOOL;
+	{attribute 'OPC.UA.DA' := '1'}  // Comentar
+	Palletizer_1_Chain_mas AT %Q* : BOOL;
+	{attribute 'OPC.UA.DA' := '1'}  // Comentar
+	Palletizer_1_Clamb AT %Q* : BOOL;	
+	{attribute 'OPC.UA.DA' := '1'}  // Comentar
+	Palletizer_1_Elevator_mas AT %Q* : BOOL;
+	{attribute 'OPC.UA.DA' := '1'}  // Comentar
+	Palletizer_1_Elevator_menos AT %Q* : BOOL;
+	{attribute 'OPC.UA.DA' := '1'}  // Comentar
+	Palletizer_1_Elevator_Move_Limit AT %Q* : BOOL;
+	{attribute 'OPC.UA.DA' := '1'}  // Comentar
+	Palletizer_1_Open_Plate AT %Q* : BOOL;
+	{attribute 'OPC.UA.DA' := '1'}  // Comentar
+	Palletizer_1_Push AT %Q* : BOOL;
+	{attribute 'OPC.UA.DA' := '1'}  // Comentar
+	Palletizer_1_Turn AT %Q* : BOOL;
+	{attribute 'OPC.UA.DA' := '1'} 
+	Pivot_Arm_Sorter_2_Turn AT %Q* : BOOL;
+	{attribute 'OPC.UA.DA' := '1'}  // Comentar
+	RFID_Reader_1_Ejecute_Comm AT %Q* : BOOL;	
+	{attribute 'OPC.UA.DA' := '1'}  // Comentar
+	Right_Positioner_1_Clamp AT %Q* : BOOL;
+	{attribute 'OPC.UA.DA' := '1'}  // Comentar
+	Right_Positioner_2_Clamp AT %Q* : BOOL;	
+	{attribute 'OPC.UA.DA' := '1'}  // Comentar
+	Right_Positioner_2_Raise AT %Q* : BOOL;
+	{attribute 'OPC.UA.DA' := '1'} 
+	Roller_Conveyor_2m_1 AT %Q* : BOOL;	
+	{attribute 'OPC.UA.DA' := '1'}  // Comentar
+	Two_Axis_Pick_Place_1X AT %Q* : BOOL;	
+	{attribute 'OPC.UA.DA' := '1'}  // Comentar
+	Two_Axis_Pick_Place_1Z AT %Q* : BOOL;	
+	{attribute 'OPC.UA.DA' := '1'}  // Comentar
+	Two_Axis_Pick_Place_1_Grab AT %Q* : BOOL;	
+	
+	
+//Línea Producción 2
+
+	{attribute 'OPC.UA.DA' := '1'} 
+	Belt_Conveyor_2m_7 AT %Q* : BOOL;
+	{attribute 'OPC.UA.DA' := '1'} 
+	Belt_Conveyor_2m_8 AT %Q* : BOOL;
+	{attribute 'OPC.UA.DA' := '1'} 
+	Belt_Conveyor_2m_9 AT %Q* : BOOL;
+	{attribute 'OPC.UA.DA' := '1'} 
+	Belt_Conveyor_2m_10 AT %Q* : BOOL;
+	{attribute 'OPC.UA.DA' := '1'} 
+	Belt_Conveyor_6m_3 AT %Q* : BOOL;
+	{attribute 'OPC.UA.DA' := '1'} 
+	Curved_Belt_Conveyor_2_CW AT %Q* : BOOL;
+	{attribute 'OPC.UA.DA' := '1'} 
+	Curved_Belt_Conveyor_2_CCW AT %Q* : BOOL;
+	//{attribute 'OPC.UA.DA' := '1'}  // Comentar
+	Emitter_3 AT %Q* : BOOL := TRUE;
+	//{attribute 'OPC.UA.DA' := '1'} 
+	Machining_Center_3_Produce_Lids AT %Q* : BOOL := TRUE;
+	//{attribute 'OPC.UA.DA' := '1'} 
+	Machining_Center_3_Start AT %Q* : BOOL;
+	//{attribute 'OPC.UA.DA' := '1'} 
+	Machine_Center_3_Stop  AT %Q* : BOOL ;	
+	//{attribute 'OPC.UA.DA' := '1'} 
+	Machine_Center_3_Reset  AT %Q* : BOOL ;
+	//{attribute 'OPC.UA.DA' := '1'} 
+	Machining_Center_4_Produce_Lids AT %Q* : BOOL := FALSE;	
+	//{attribute 'OPC.UA.DA' := '1'} 
+	Machining_Center_4_Start AT %Q* : BOOL;
+	//{attribute 'OPC.UA.DA' := '1'} 
+	Machine_Center_4_Stop  AT %Q* : BOOL ;	
+	//{attribute 'OPC.UA.DA' := '1'} 
+	Machine_Center_4_Reset  AT %Q* : BOOL ;
+	{attribute 'OPC.UA.DA' := '1'} 
+	Pivot_Arm_Sorter_3_Belt_mas AT %Q* : BOOL;	
+	//{attribute 'OPC.UA.DA' := '1'} 
+	Reset_Button_4_Light AT %Q* : BOOL;	
+	//{attribute 'OPC.UA.DA' := '1'} 
+	RFID_Reader_2_Command AT %Q* : DINT := 3;
+	//{attribute 'OPC.UA.DA' := '1'} 
+	RFID_Reader_2_Write_Data AT %Q* : DINT := 4;
+	//{attribute 'OPC.UA.DA' := '1'} 
+	Reset_Button_7_Light AT %Q* : BOOL;		
+	//{attribute 'OPC.UA.DA' := '1'} // Comentar
+	Stack_Light_5_Green AT %Q* : BOOL;	
+	//{attribute 'OPC.UA.DA' := '1'} // Comentar
+	Stack_Light_6_Green AT %Q* : BOOL;
+	//{attribute 'OPC.UA.DA' := '1'} // Comentar
+	Stack_Light_7_Green AT %Q* : BOOL;
+	//{attribute 'OPC.UA.DA' := '1'} // Comentar
+	Stack_Light_8_Green AT %Q* : BOOL;	
+	//{attribute 'OPC.UA.DA' := '1'} // Comentar
+	Stack_Light_5_Red AT %Q* : BOOL;	
+	//{attribute 'OPC.UA.DA' := '1'} // Comentar
+	Stack_Light_6_Red AT %Q* : BOOL;
+	//{attribute 'OPC.UA.DA' := '1'} // Comentar
+	Stack_Light_7_Red AT %Q* : BOOL;	
+	//{attribute 'OPC.UA.DA' := '1'} // Comentar
+	Stack_Light_8_Red AT %Q* : BOOL;	
+	//{attribute 'OPC.UA.DA' := '1'} // Comentar
+	Stack_Light_5_Yellow AT %Q* : BOOL;	
+	//{attribute 'OPC.UA.DA' := '1'} // Comentar
+	Stack_Light_6_Yellow AT %Q* : BOOL;		
+	//{attribute 'OPC.UA.DA' := '1'} // Comentar
+	Stack_Light_7_Yellow AT %Q* : BOOL;		
+	//{attribute 'OPC.UA.DA' := '1'} // Comentar
+	Stack_Light_8_Yellow AT %Q* : BOOL;
+	//{attribute 'OPC.UA.DA' := '1'} 
+	Start_Button_4_Light AT %Q* : BOOL;
+	//{attribute 'OPC.UA.DA' := '1'} 
+	Start_Button_7_Light AT %Q* : BOOL;
+	//{attribute 'OPC.UA.DA' := '1'} 
+	Stop_Button_4_Light AT %Q* : BOOL;	
+	//{attribute 'OPC.UA.DA' := '1'} 
+	Stop_Button_7_Light AT %Q* : BOOL;
+	
+	
+	//Función 
+	
+	{attribute 'OPC.UA.DA' := '1'} 
+	Belt_Conveyor_4m_10 AT %Q* : BOOL;
+	{attribute 'OPC.UA.DA' := '1'} 
+	Belt_Conveyor_4m_11 AT %Q* : BOOL;
+	{attribute 'OPC.UA.DA' := '1'} 
+	Belt_Conveyor_2m_16 AT %Q* : BOOL;
+	{attribute 'OPC.UA.DA' := '1'} 
+	Belt_Conveyor_2m_17 AT %Q* : BOOL;
+	{attribute 'OPC.UA.DA' := '1'} 
+	Belt_Conveyor_2m_18 AT %Q* : BOOL;
+	{attribute 'OPC.UA.DA' := '1'} 
+	Belt_Conveyor_4m_8 AT %Q* : BOOL;
+	{attribute 'OPC.UA.DA' := '1'} 
+	Belt_Conveyor_4m_9 AT %Q* : BOOL;
+	{attribute 'OPC.UA.DA' := '1'} 
+	Belt_Conveyor_Inclined_2 AT %Q* : BOOL;	
+	//{attribute 'OPC.UA.DA' := '1'}  // Comentar
+	Emitter_6 AT %Q* : BOOL := FALSE;
+	//{attribute 'OPC.UA.DA' := '1'}  // Comentar
+	Palletizer_2_Belt_mas AT %Q* : BOOL;
+	//{attribute 'OPC.UA.DA' := '1'}  // Comentar
+	Palletizer_2_Chain_mas AT %Q* : BOOL;
+	//{attribute 'OPC.UA.DA' := '1'}  // Comentar
+	Palletizer_2_Clamb AT %Q* : BOOL;
+	//{attribute 'OPC.UA.DA' := '1'}  // Comentar
+	Palletizer_2_Elevator_mas AT %Q* : BOOL;
+	//{attribute 'OPC.UA.DA' := '1'}  // Comentar
+	Palletizer_2_Elevator_menos AT %Q* : BOOL;
+	//{attribute 'OPC.UA.DA' := '1'}  // Comentar
+	Palletizer_2_Elevator_Move_Limit AT %Q* : BOOL;
+	//{attribute 'OPC.UA.DA' := '1'}  // Comentar
+	Palletizer_2_Open_Plate AT %Q* : BOOL;
+	//{attribute 'OPC.UA.DA' := '1'}  // Comentar
+	Palletizer_2_Push AT %Q* : BOOL;
+	//{attribute 'OPC.UA.DA' := '1'}  // Comentar
+	Palletizer_2_Turn AT %Q* : BOOL;	
+	{attribute 'OPC.UA.DA' := '1'} 
+	Pivot_Arm_Sorter_3_Turn AT %Q* : BOOL;
+	//{attribute 'OPC.UA.DA' := '1'}  // Comentar
+	RFID_Reader_2_Ejecute_Comm AT %Q* : BOOL;
+	//{attribute 'OPC.UA.DA' := '1'}  // Comentar
+	Right_Positioner_3_Clamp AT %Q* : BOOL;
+	//{attribute 'OPC.UA.DA' := '1'}  // Comentar
+	Right_Positioner_4_Clamp AT %Q* : BOOL;
+	//{attribute 'OPC.UA.DA' := '1'}  // Comentar
+	Right_Positioner_4_Raise AT %Q* : BOOL;
+	{attribute 'OPC.UA.DA' := '1'} 
+	Roller_Conveyor_2m_4 AT %Q* : BOOL;
+	//{attribute 'OPC.UA.DA' := '1'}  // Comentar
+	Two_Axis_Pick_Place_2X AT %Q* : BOOL;
+	//{attribute 'OPC.UA.DA' := '1'}  // Comentar
+	Two_Axis_Pick_Place_2Z AT %Q* : BOOL;
+	//{attribute 'OPC.UA.DA' := '1'}  // Comentar
+	Two_Axis_Pick_Place_2_Grab AT %Q* : BOOL;	
+	
+	
+//Línea Producción 3
+	
+	{attribute 'OPC.UA.DA' := '1'} 
+	Belt_Conveyor_2m_2 AT %Q* : BOOL;
+	{attribute 'OPC.UA.DA' := '1'} 
+	Belt_Conveyor_2m_11 AT %Q* : BOOL;	
+	{attribute 'OPC.UA.DA' := '1'} 
+	Belt_Conveyor_2m_12 AT %Q* : BOOL;		
+	{attribute 'OPC.UA.DA' := '1'} 
+	Belt_Conveyor_4m_3 AT %Q* : BOOL;
+	{attribute 'OPC.UA.DA' := '1'} 
+	Belt_Conveyor_6m_6 AT %Q* : BOOL;	
+	{attribute 'OPC.UA.DA' := '1'} 
+	Curved_Belt_Conveyor_3_CW AT %Q* : BOOL;
+	{attribute 'OPC.UA.DA' := '1'} 
+	Curved_Belt_Conveyor_3_CCW AT %Q* : BOOL;
+	//{attribute 'OPC.UA.DA' := '1'}  // Comentar
+	Emitter_4 AT %Q* : BOOL := TRUE;	
+	//{attribute 'OPC.UA.DA' := '1'} 
+	Machining_Center_5_Produce_Lids AT %Q* : BOOL := TRUE;
+	//{attribute 'OPC.UA.DA' := '1'} 
+	Machining_Center_5_Start AT %Q* : BOOL;
+	//{attribute 'OPC.UA.DA' := '1'} 
+	Machine_Center_5_Stop  AT %Q* : BOOL ;	
+	//{attribute 'OPC.UA.DA' := '1'} 
+	Machine_Center_5_Reset  AT %Q* : BOOL ;
+	//{attribute 'OPC.UA.DA' := '1'} 
+	Machining_Center_6_Produce_Lids AT %Q* : BOOL := FALSE;	
+	//{attribute 'OPC.UA.DA' := '1'} 
+	Machining_Center_6_Start AT %Q* : BOOL;
+	//{attribute 'OPC.UA.DA' := '1'} 
+	Machine_Center_6_Stop  AT %Q* : BOOL ;	
+	//{attribute 'OPC.UA.DA' := '1'} 
+	Machine_Center_6_Reset  AT %Q* : BOOL ;
+	{attribute 'OPC.UA.DA' := '1'} 
+	Pivot_Arm_Sorter_4_Belt_mas AT %Q* : BOOL;	
+	//{attribute 'OPC.UA.DA' := '1'} 
+	Reset_Button_5_Light AT %Q* : BOOL;
+	//{attribute 'OPC.UA.DA' := '1'} 
+	Reset_Button_8_Light AT %Q* : BOOL;		
+	//{attribute 'OPC.UA.DA' := '1'} 
+	RFID_Reader_3_Command AT %Q* : DINT := 3;
+	//{attribute 'OPC.UA.DA' := '1'} 
+	RFID_Reader_3_Write_Data AT %Q* : DINT := 7;
+	//{attribute 'OPC.UA.DA' := '1'} // Comentar
+	Stack_Light_9_Green AT %Q* : BOOL;	
+	//{attribute 'OPC.UA.DA' := '1'} // Comentar
+	Stack_Light_10_Green AT %Q* : BOOL;
+	//{attribute 'OPC.UA.DA' := '1'} // Comentar
+	Stack_Light_11_Green AT %Q* : BOOL;
+	//{attribute 'OPC.UA.DA' := '1'} // Comentar
+	Stack_Light_12_Green AT %Q* : BOOL;	
+	//{attribute 'OPC.UA.DA' := '1'} // Comentar
+	Stack_Light_9_Red AT %Q* : BOOL;	
+	//{attribute 'OPC.UA.DA' := '1'} // Comentar
+	Stack_Light_10_Red AT %Q* : BOOL;
+	//{attribute 'OPC.UA.DA' := '1'} // Comentar
+	Stack_Light_11_Red AT %Q* : BOOL;	
+	//{attribute 'OPC.UA.DA' := '1'} // Comentar
+	Stack_Light_12_Red AT %Q* : BOOL;	
+	//{attribute 'OPC.UA.DA' := '1'} // Comentar
+	Stack_Light_9_Yellow AT %Q* : BOOL;	
+	//{attribute 'OPC.UA.DA' := '1'} // Comentar
+	Stack_Light_10_Yellow AT %Q* : BOOL;		
+	//{attribute 'OPC.UA.DA' := '1'} // Comentar
+	Stack_Light_11_Yellow AT %Q* : BOOL;		
+	//{attribute 'OPC.UA.DA' := '1'} // Comentar
+	Stack_Light_12_Yellow AT %Q* : BOOL;
+	//{attribute 'OPC.UA.DA' := '1'} 
+	Start_Button_5_Light AT %Q* : BOOL;	
+	//{attribute 'OPC.UA.DA' := '1'} 
+	Start_Button_8_Light AT %Q* : BOOL;	
+	//{attribute 'OPC.UA.DA' := '1'} 
+	Stop_Button_5_Light AT %Q* : BOOL;
+	//{attribute 'OPC.UA.DA' := '1'} 
+	Stop_Button_8_Light AT %Q* : BOOL;
+	
+	
+	//Función
+	
+	{attribute 'OPC.UA.DA' := '1'} 
+	Belt_Conveyor_2m_19 AT %Q* : BOOL;
+	{attribute 'OPC.UA.DA' := '1'} 
+	Belt_Conveyor_2m_20 AT %Q* : BOOL;
+	{attribute 'OPC.UA.DA' := '1'} 
+	Belt_Conveyor_2m_21 AT %Q* : BOOL;
+	{attribute 'OPC.UA.DA' := '1'} 
+	Belt_Conveyor_4m_12 AT %Q* : BOOL;
+	{attribute 'OPC.UA.DA' := '1'} 
+	Belt_Conveyor_4m_13 AT %Q* : BOOL;
+	{attribute 'OPC.UA.DA' := '1'} 
+	Belt_Conveyor_4m_14 AT %Q* : BOOL;
+	{attribute 'OPC.UA.DA' := '1'} 
+	Belt_Conveyor_4m_15 AT %Q* : BOOL;
+	{attribute 'OPC.UA.DA' := '1'} 
+	Belt_Conveyor_Inclined_3 AT %Q* : BOOL;
+	//{attribute 'OPC.UA.DA' := '1'}  // Comentar
+	Emitter_7 AT %Q* : BOOL := FALSE;
+	//{attribute 'OPC.UA.DA' := '1'}  // Comentar
+	Palletizer_3_Belt_mas AT %Q* : BOOL;
+	//{attribute 'OPC.UA.DA' := '1'}  // Comentar
+	Palletizer_3_Chain_mas AT %Q* : BOOL;	
+	//{attribute 'OPC.UA.DA' := '1'}  // Comentar
+	Palletizer_3_Clamb AT %Q* : BOOL;
+	//{attribute 'OPC.UA.DA' := '1'}  // Comentar
+	Palletizer_3_Elevator_mas AT %Q* : BOOL;
+	//{attribute 'OPC.UA.DA' := '1'}  // Comentar
+	Palletizer_3_Elevator_menos AT %Q* : BOOL;
+	//{attribute 'OPC.UA.DA' := '1'}  // Comentar
+	Palletizer_3_Elevator_Move_Limit AT %Q* : BOOL;
+	//{attribute 'OPC.UA.DA' := '1'}  // Comentar
+	Palletizer_3_Open_Plate AT %Q* : BOOL;
+	//{attribute 'OPC.UA.DA' := '1'}  // Comentar
+	Palletizer_3_Push AT %Q* : BOOL;
+	//{attribute 'OPC.UA.DA' := '1'}  // Comentar
+	Palletizer_3_Turn AT %Q* : BOOL;
+	{attribute 'OPC.UA.DA' := '1'} 
+	Pivot_Arm_Sorter_4_Turn AT %Q* : BOOL;
+	//{attribute 'OPC.UA.DA' := '1'}  // Comentar
+	RFID_Reader_3_Ejecute_Comm AT %Q* : BOOL;
+	//{attribute 'OPC.UA.DA' := '1'}  // Comentar /
+	Right_Positioner_5_Clamp AT %Q* : BOOL;
+	//{attribute 'OPC.UA.DA' := '1'}  // Comentar
+	Right_Positioner_6_Clamp AT %Q* : BOOL;	
+	//{attribute 'OPC.UA.DA' := '1'}  // Comentar
+	Right_Positioner_6_Raise AT %Q* : BOOL;	
+	{attribute 'OPC.UA.DA' := '1'} 
+	Roller_Conveyor_2m_7 AT %Q* : BOOL;
+	//{attribute 'OPC.UA.DA' := '1'}  // Comentar
+	Two_Axis_Pick_Place_3_Grab AT %Q* : BOOL;
+	//{attribute 'OPC.UA.DA' := '1'}  // Comentar
+	Two_Axis_Pick_Place_3Z AT %Q* : BOOL;
+	//{attribute 'OPC.UA.DA' := '1'}  // Comentar
+	Two_Axis_Pick_Place_3X AT %Q* : BOOL;
+	
+	
+//Almacén
+	
+	{attribute 'OPC.UA.DA' := '1'} 
+	Chain_Transfer_1_mas AT %Q* : BOOL;
+	{attribute 'OPC.UA.DA' := '1'} 
+	Curved_Roller_Conveyor_1_CCW AT %Q* : BOOL;
+	{attribute 'OPC.UA.DA' := '1'} 
+	Curved_Roller_Conveyor_2_CW AT %Q* : BOOL;
+	{attribute 'OPC.UA.DA' := '1'} 
+	Digital_Display_1 AT %Q* : DINT;		
+	{attribute 'OPC.UA.DA' := '1'} 
+	Light_Indicator_Green AT %Q* : BOOL;
+	{attribute 'OPC.UA.DA' := '1'} 
+	Light_Indicator_Blue AT %Q* : BOOL;
+	{attribute 'OPC.UA.DA' := '1'} 
+	Light_Indicator_Red	 AT %Q* : BOOL;	
+	{attribute 'OPC.UA.DA' := '1'} 
+	Loading_Conveyor_1 AT %Q* : BOOL;
+	{attribute 'OPC.UA.DA' := '1'} 
+	Loading_Conveyor_2 AT %Q* : BOOL;
+	//{attribute 'OPC.UA.DA' := '1'} 
+	Reset_Button_1_Light AT %Q* : BOOL;
+	//{attribute 'OPC.UA.DA' := '1'} 
+	Reset_Button_9_Light AT %Q* : BOOL;
+	{attribute 'OPC.UA.DA' := '1'} 
+	RFID_Reader_4_Command AT %Q* : DINT := 2;
+	{attribute 'OPC.UA.DA' := '1'} 
+	RFID_Reader_4_Ejecute_Comm AT %Q* : BOOL;
+	{attribute 'OPC.UA.DA' := '1'} 
+	Roller_Conveyor_2m_2 AT %Q* : BOOL;
+	{attribute 'OPC.UA.DA' := '1'} 
+	Roller_Conveyor_2m_3 AT %Q* : BOOL;	
+	{attribute 'OPC.UA.DA' := '1'} 
+	Roller_Conveyor_2m_5 AT %Q* : BOOL;
+	{attribute 'OPC.UA.DA' := '1'} 
+	Roller_Conveyor_2m_6 AT %Q* : BOOL;	
+	{attribute 'OPC.UA.DA' := '1'} 
+	Roller_Conveyor_2m_8 AT %Q* : BOOL;
+	{attribute 'OPC.UA.DA' := '1'} 
+	Roller_Conveyor_2m_9 AT %Q* : BOOL;
+	{attribute 'OPC.UA.DA' := '1'} 
+	Roller_Conveyor_4m_1 AT %Q* : BOOL;	
+	{attribute 'OPC.UA.DA' := '1'} 
+	Roller_Conveyor_4m_2 AT %Q* : BOOL;	
+	{attribute 'OPC.UA.DA' := '1'} 
+	Roller_Conveyor_4m_3 AT %Q* : BOOL;
+	{attribute 'OPC.UA.DA' := '1'} 
+	Roller_Conveyor_6m_1 AT %Q* : BOOL;
+	{attribute 'OPC.UA.DA' := '1'} 
+	Roller_Conveyor_6m_2 AT %Q* : BOOL;
+	//{attribute 'OPC.UA.DA' := '1'} // Comentar
+	Stack_Light_13_Green AT %Q* : BOOL;
+	//{attribute 'OPC.UA.DA' := '1'} // Comentar
+	Stack_Light_14_Green AT %Q* : BOOL;
+	//{attribute 'OPC.UA.DA' := '1'} // Comentar
+	Stack_Light_13_Red AT %Q* : BOOL;	
+	//{attribute 'OPC.UA.DA' := '1'} // Comentar
+	Stack_Light_14_Red AT %Q* : BOOL;	
+	//{attribute 'OPC.UA.DA' := '1'} // Comentar
+	Stack_Light_13_Yellow AT %Q* : BOOL;		
+	//{attribute 'OPC.UA.DA' := '1'} // Comentar
+	Stack_Light_14_Yellow AT %Q* : BOOL;
+	{attribute 'OPC.UA.DA' := '1'} 
+	Stacker_Crane_1_Left AT %Q* : BOOL;
+	{attribute 'OPC.UA.DA' := '1'} 
+	Stacker_Crane_1_Lift AT %Q* : BOOL;
+	{attribute 'OPC.UA.DA' := '1'} 
+	Stacker_Crane_1_Right AT %Q* : BOOL;
+	{attribute 'OPC.UA.DA' := '1'} 
+	Stacker_Crane_1_Target_Position  AT %Q* : DINT;	
+	//{attribute 'OPC.UA.DA' := '1'} 
+	Start_Button_1_Light AT %Q* : BOOL;
+	//{attribute 'OPC.UA.DA' := '1'} 
+	Start_Button_9_Light AT %Q* : BOOL;
+	//{attribute 'OPC.UA.DA' := '1'} 
+	Stop_Button_1_Light AT %Q* : BOOL;
+	//{attribute 'OPC.UA.DA' := '1'} 
+	Stop_Button_9_Light AT %Q* : BOOL;
+	{attribute 'OPC.UA.DA' := '1'} 
+	Turnable_1_Turn AT %Q* : BOOL;
+	{attribute 'OPC.UA.DA' := '1'} 
+	Turnable_1_Roll_menos AT %Q* : BOOL;
+	{attribute 'OPC.UA.DA' := '1'} 
+	Turnable_2_Turn AT %Q* : BOOL;
+	{attribute 'OPC.UA.DA' := '1'} 
+	Turnable_2_Roll_menos AT %Q* : BOOL;
+	
+
+//Exclusivo HMI
+	
+	//{attribute 'OPC.UA.DA' := '1'}
+	Palletizer_1_Belt_menos AT %Q* : BOOL;
+	//{attribute 'OPC.UA.DA' := '1'} 
+	Palletizer_1_Chain_menos AT %Q* : BOOL;	
+	//{attribute 'OPC.UA.DA' := '1'}  
+	Two_Axis_Pick_Place_1_Gripper_CCW AT %Q* : BOOL;	
+	//{attribute 'OPC.UA.DA' := '1'}  
+	Two_Axis_Pick_Place_1_Gripper_CW AT %Q* : BOOL;
+	//{attribute 'OPC.UA.DA' := '1'} 
+	Two_Axis_Pick_Place_1_Rotate_CCW AT %Q* : BOOL := FALSE;	
+	//{attribute 'OPC.UA.DA' := '1'} 
+	Two_Axis_Pick_Place_1_Rotare_CW AT %Q* : BOOL := FALSE;
+	//{attribute 'OPC.UA.DA' := '1'}
+	Palletizer_2_Belt_menos AT %Q* : BOOL;	
+	//{attribute 'OPC.UA.DA' := '1'}
+	Palletizer_2_Chain_menos AT %Q* : BOOL;	
+	//{attribute 'OPC.UA.DA' := '1'}  
+	Two_Axis_Pick_Place_2_Gripper_CCW AT %Q* : BOOL;	
+	//{attribute 'OPC.UA.DA' := '1'}  
+	Two_Axis_Pick_Place_2_Gripper_CW AT %Q* : BOOL;
+	//{attribute 'OPC.UA.DA' := '1'} 
+	Two_Axis_Pick_Place_2_Rotate_CCW AT %Q* : BOOL := FALSE;	
+	//{attribute 'OPC.UA.DA' := '1'} 
+	Two_Axis_Pick_Place_2_Rotare_CW AT %Q* : BOOL := FALSE;	
+	//{attribute 'OPC.UA.DA' := '1'}
+	Palletizer_3_Belt_menos AT %Q* : BOOL;	
+	//{attribute 'OPC.UA.DA' := '1'}
+	Palletizer_3_Chain_menos AT %Q* : BOOL;	
+	//{attribute 'OPC.UA.DA' := '1'} 
+	Pivot_Arm_Sorter_1_Turn AT %Q* : BOOL;	
+	//{attribute 'OPC.UA.DA' := '1'} 
+	Pivot_Arm_Sorter_2_Belt_menos AT %Q* : BOOL;
+	//{attribute 'OPC.UA.DA' := '1'} 
+	Pivot_Arm_Sorter_3_Belt_menos AT %Q* : BOOL;
+	//{attribute 'OPC.UA.DA' := '1'} 
+	Pivot_Arm_Sorter_4_Belt_menos AT %Q* : BOOL;
+	//{attribute 'OPC.UA.DA' := '1'}  
+	RFID_Reader_1_Memory_Index AT %Q* : DINT;
+	//{attribute 'OPC.UA.DA' := '1'}  
+	RFID_Reader_2_Memory_Index AT %Q* : DINT;
+	//{attribute 'OPC.UA.DA' := '1'}  
+	RFID_Reader_3_Memory_Index AT %Q* : DINT;
+	//{attribute 'OPC.UA.DA' := '1'}  
+	RFID_Reader_4_Memory_Index AT %Q* : DINT;
+	//{attribute 'OPC.UA.DA' := '1'} 
+	Right_Positioner_1_Raise AT %Q* : BOOL;	
+	//{attribute 'OPC.UA.DA' := '1'} 
+	Right_Positioner_3_Raise AT %Q* : BOOL;		
+	//{attribute 'OPC.UA.DA' := '1'} 
+	Right_Positioner_5_Raise AT %Q* : BOOL;	
+	//{attribute 'OPC.UA.DA' := '1'} 
+	Turnable_1_Roll_mas AT %Q* : BOOL;
+	//{attribute 'OPC.UA.DA' := '1'} 
+	Turnable_2_Roll_mas AT %Q* : BOOL;	
+	//{attribute 'OPC.UA.DA' := '1'}  
+	Two_Axis_Pick_Place_3_Gripper_CCW AT %Q* : BOOL;	
+	//{attribute 'OPC.UA.DA' := '1'}  
+	Two_Axis_Pick_Place_3_Gripper_CW AT %Q* : BOOL;
+	//{attribute 'OPC.UA.DA' := '1'} 
+	Two_Axis_Pick_Place_3_Rotate_CCW AT %Q* : BOOL := FALSE;	
+	//{attribute 'OPC.UA.DA' := '1'} 
+	Two_Axis_Pick_Place_3_Rotare_CW AT %Q* : BOOL := FALSE;
+
+	
+	
+END_VAR]]></Declaration>
+  </GVL>
+</TcPlcObject>
